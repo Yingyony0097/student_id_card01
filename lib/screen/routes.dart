@@ -8,14 +8,14 @@ import 'package:student_id_card/screen/search_student.dart';
 class AppRoute {
   static const admin = 'adminpage';
   static const login = 'LoginPage';
-  static const studentedit = 'studentEdit';
+  static const edit = 'studentEdit';
   static const studentadd = 'studentAdd';
   static const search = 'searchstudent';
 
   static get all => <String, WidgetBuilder>{
         admin: (context) => const adminpage(),
         login: (context) => const LoginPage(),
-        studentedit: (context) => const studentEdit(),
+        edit: (context) => const studentEdit(),
         studentadd: (context) => const studentAdd(),
         search: (context) => const searchstudent(),
       };

@@ -14,6 +14,8 @@ class MyApp extends StatelessWidget {
       title: "IICT",
       routes: AppRoute.all,
       home: const LoginPage(),
+      // home: const studentEdit(),
+
       navigatorKey: navigatorState,
       debugShowCheckedModeBanner: false,
     ));

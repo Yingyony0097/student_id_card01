@@ -114,7 +114,7 @@ class _adminpageState extends State<adminpage> {
                             style: TextStyle(fontSize: 20, color: Colors.white),
                           ),
                           onPressed: () {
-                            Navigator.pushNamed(context, AppRoute.login);
+                            Navigator.pushNamed(context, AppRoute.edit);
                           }),
                     ),
                   ),

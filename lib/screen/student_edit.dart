@@ -6,11 +6,11 @@ class studentEdit extends StatefulWidget {
   const studentEdit({super.key});
 
   @override
-  State<studentEdit> createState() => _studentEditState();
+  State<studentEdit> createState() => studentEditState();
 }
 
 // ignore: camel_case_types
-class _studentEditState extends State<studentEdit> {
+class studentEditState extends State<studentEdit> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class Searchstudent extends StatefulWidget {
-  const Searchstudent({Key? key});
+  const Searchstudent({
+    super.key,
+  });
 
   @override
   State<Searchstudent> createState() => _SearchstudentState();

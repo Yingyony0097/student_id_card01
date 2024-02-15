@@ -42,7 +42,53 @@ class StudentEdit extends StatelessWidget {
                 _buildTextField(
                     label: 'ກຳນົດນຳໃຊ້ບັດ', hintText: 'ກຳນົດການນຳໃຊ້ບັດ'),
                 const SizedBox(height: 15),
-                ElevatedButton(
+                 const Row(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Text(
+                      'ອັບໂຫຼດຮູບບັດປະຈຳຕົວ:',
+                      style: TextStyle(
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 50.0),
+                    child: SizedBox(
+                      height: 65,
+                      width: 65,
+                      child: ImageIcon(AssetImage('assets/images/avatar.jpg'),
+                      color: Color(0xFF3A5A98),),
+                    ),
+                  )
+                ],
+              ),
+              const SizedBox(height:10),
+                Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, AppRoute.admin);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(192, 39, 2, 226),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15)),
+                        padding: const EdgeInsets.all(10),
+                      ),
+                      
+                      child: const Text(
+                        'ບັນທືກຂໍ້ມູນ',
+                        style: TextStyle(fontSize: 20, color: Colors.white),
+                      ),
+                    ),
+
+                    const SizedBox(width: 160,),
+
+
+
+                    ElevatedButton(
                   onPressed: () {
                     Navigator.pushNamed(context, AppRoute.admin);
                   },
@@ -50,12 +96,15 @@ class StudentEdit extends StatelessWidget {
                     backgroundColor: const Color.fromARGB(192, 39, 2, 226),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15)),
-                    padding: const EdgeInsets.all(15),
+                    padding: const EdgeInsets.all(10),
                   ),
+                  
                   child: const Text(
-                    'ບັນທືກຂໍ້ມູນ',
+                    'ແກ້ໄຂຂໍ້ມູນ',
                     style: TextStyle(fontSize: 20, color: Colors.white),
                   ),
+                ),
+                  ],
                 ),
               ],
             ),

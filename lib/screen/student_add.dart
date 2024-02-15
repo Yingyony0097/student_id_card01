@@ -188,17 +188,17 @@ class _studentAddState extends State<studentAdd> {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20.0),
                     child: Text(
-                      'ອັບໂຫຼດຮູບບັດປະຈຳຕົວ',
+                      'ອັບໂຫຼດຮູບບັດປະຈຳຕົວ:',
                       style: TextStyle(
                         fontSize: 18,
                       ),
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 80.0),
+                    padding: EdgeInsets.symmetric(horizontal: 50.0),
                     child: SizedBox(
-                      height: 50,
-                      width: 50,
+                      height: 70,
+                      width: 70,
                       child: ImageIcon(AssetImage('assets/images/avatar.jpg'),
                       color: Color(0xFF3A5A98),),
                     ),

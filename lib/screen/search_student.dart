@@ -28,7 +28,7 @@ class _SearchstudentState extends State<Searchstudent> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(244, 255, 254, 254),
+      backgroundColor: const Color.fromARGB(244, 244, 247, 227),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 50.0),

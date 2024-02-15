@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:student_id_card/screen/routes.dart';
 
 class Searchstudent extends StatefulWidget {
   const Searchstudent({
@@ -57,7 +58,9 @@ class _SearchstudentState extends State<Searchstudent> {
                   ),
                   const SizedBox(width: 10),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pushNamed(context, AppRoute.showCard);
+                    },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(
                           const Color.fromARGB(192, 39, 2, 226)),

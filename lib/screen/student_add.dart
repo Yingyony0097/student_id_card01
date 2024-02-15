@@ -14,7 +14,7 @@ class _studentAddState extends State<studentAdd> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(244, 255, 254, 254),
+      backgroundColor: const Color.fromARGB(244, 244, 247, 227),
       body: SafeArea(
           child: SingleChildScrollView(
         child: Center(
@@ -197,9 +197,10 @@ class _studentAddState extends State<studentAdd> {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 80.0),
                     child: SizedBox(
-                      height: 30,
-                      width: 30,
-                      child: Text('3*4'),
+                      height: 50,
+                      width: 50,
+                      child: ImageIcon(AssetImage('assets/images/avatar.jpg'),
+                      color: Color(0xFF3A5A98),),
                     ),
                   )
                 ],

@@ -45,7 +45,7 @@ class _SearchstudentState extends State<Searchstudent> {
                   controller: _searchController,
                   decoration: const InputDecoration(
                     labelText: 'ປ້ອນລະຫັດນັກສຶກສາ',
-                    labelStyle: TextStyle(color: Colors.red),
+                    labelStyle: TextStyle(color: Colors.green),
                     border: OutlineInputBorder(),
                   ),
                 ),

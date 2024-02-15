@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:student_id_card/screen/show_studen_card.dart';
 
 class Searchstudent extends StatefulWidget {
   const Searchstudent({super.key});
@@ -51,11 +52,23 @@ class _SearchstudentState extends State<Searchstudent> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: () {},
+
+                   onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return const ShowCard();
+                                },
+                              ),
+                            );
+                  },
                   child: const Text(
                     'ຄົ້ນຫາ',
                     style: TextStyle(fontSize: 20),
                   ),
+
+                 
                 ),
               ],
             ),

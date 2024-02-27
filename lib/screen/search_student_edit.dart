@@ -73,8 +73,6 @@ class _searchEditState extends State<searchEdit> {
               ),
 
 
-              SizedBox(height: 20,),
-
 
               
             ],

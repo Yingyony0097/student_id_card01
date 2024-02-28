@@ -64,6 +64,44 @@ app.post('/student', async (req, res) => {
 });
 
 
+app.post('/login', async (req, res) => {
+  const { sdCardID, password } = req.body;
+
+  // try {
+   
+  // } catch (error) {
+  //   console.error('Error logging in:', error.message);
+  //   res.status(500).json({ error: 'Error logging in' });
+  // }
+
+   // Retrieve the hashed password from the database
+   const result = await conn.query('SELECT * FROM student WHERE sdCardID = ?', [sdCardID]);
+   const student = result[0][0];
+
+   if (student) {
+     const hashedPasswordFromDB = student.password;
+
+
+     const isPasswordMatch = await bcrypt.compare(password, hashedPasswordFromDB);
+
+      
+
+     // Compare the input password with the hashed password from the database
+
+     if (isPasswordMatch) {
+       res.status(200).json({ message: 'Login successful' });
+     } else {
+       res.status(401).json({ error: 'Invalid username or password' });
+     }
+   } else {
+     res.status(401).json({ error: 'Invalid username or password' });
+   }
+});
+
+
+
+
+
 
 
 

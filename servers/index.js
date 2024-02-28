@@ -3,6 +3,7 @@ const app = express()
 const bodyParser = require('body-parser')
 const mysql = require('mysql2/promise')
 const { body, param, validationResult } = require('express-validator');
+const bcrypt = require('bcrypt');
 
 app.use(bodyParser.json())
 
@@ -45,17 +46,25 @@ app.get('/student', async (req, res) => {
 
 
 app.post('/student', async (req, res) => {
-  const data = req.body
+  const data = req.body;
 
   try {
-    const result = await conn.query('INSERT INTO student (sdCardID, fname_la, lname_la, fname_en, lname_en, date_of_birth, date_start, date_end, images, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [data.sdCardID, data.fname_la, data.lname_la, data.fname_en, data.lname_en, data.date_of_birth, data.date_start, data.date_end, data.images, data.password])
-    const studentId = result.insertId
-    res.status(201).json({ message: 'student created successfully', studentId })
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(data.password, 10); // 10 is the saltRounds
+
+    // Insert the hashed password into the database
+    const result = await conn.query('INSERT INTO student (sdCardID, fname_la, lname_la, fname_en, lname_en, date_of_birth, date_start, date_end, images, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [data.sdCardID, data.fname_la, data.lname_la, data.fname_en, data.lname_en, data.date_of_birth, data.date_start, data.date_end, data.images, hashedPassword]);
+    
+    const studentId = result.insertId;
+    res.status(201).json({ message: 'student created successfully', studentId });
   } catch (error) {
-    console.error('Error creating student:', error.message)
-    res.status(500).json({ error: 'Error creating student' })
+    console.error('Error creating student:', error.message);
+    res.status(500).json({ error: 'Error creating student' });
   }
-})
+});
+
+
+
 
 
 //getid
@@ -128,22 +137,6 @@ app.put('/student/:id', async (req, res) => {
 
 
 //delete
-// app.delete('/student/:sdCardID', async (req, res) => {
-//   const sdCardID = req.params.sdCardID
-
-//   try {
-//     const result = await conn.query('DELETE FROM student WHERE sdCardID = ?', [sdCardID])
-//     if (result[0].affectedRows === 0) {
-//       return res.status(404).json({ error: 'student not found' })
-//     }
-//     res.json({ message: 'student deleted successfully', studentId: sdCardID })
-//   } catch (error) {
-//     console.error('Error deleting student:', error.message)
-//     res.status(500).json({ error: 'Error deleting student' })
-//   }
-// })
-
-
 
 app.delete('/student/:id', [
   param('id').isInt().withMessage('ID must be an integer').toInt(),

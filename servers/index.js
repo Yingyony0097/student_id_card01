@@ -4,6 +4,8 @@ const bodyParser = require('body-parser')
 const mysql = require('mysql2/promise')
 const { body, param, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
+var jwt = require('jsonwebtoken');
+const secret = 'FullstackLogin';
 
 app.use(bodyParser.json())
 
@@ -67,39 +69,75 @@ app.post('/student', async (req, res) => {
 app.post('/login', async (req, res) => {
   const { sdCardID, password } = req.body;
 
-  // try {
-   
-  // } catch (error) {
-  //   console.error('Error logging in:', error.message);
-  //   res.status(500).json({ error: 'Error logging in' });
-  // }
+  try {
+    const result = await conn.query('SELECT * FROM student WHERE sdCardID = ?', [sdCardID]);
+    console.log('Result:', result); // Log the result array
 
-   // Retrieve the hashed password from the database
-   const result = await conn.query('SELECT * FROM student WHERE sdCardID = ?', [sdCardID]);
-   const student = result[0][0];
+    const student = result[0][0];
+    if (!student) {
+      return res.status(401).json({ error: 'Invalid username or password' });
+    }
 
-   if (student) {
-     const hashedPasswordFromDB = student.password;
+    const hashedPasswordFromDB = student.password;
+    const isPasswordMatch = await bcrypt.compare(password, hashedPasswordFromDB);
 
+    if (isPasswordMatch) {
+      var token = jwt.sign({ sdCardID: student.sdCardID }, secret, { expiresIn: '1h' });
+      res.status(200).json({ message: 'Login successful', token }); // Use res.status().json()
+    } else {
+      res.status(401).json({ error: 'Invalid username or password' });
+    }
+  } catch (error) {
+    console.error('Error logging in:', error.message);
+    res.status(500).json({ error: 'Error logging in' });
+  }
+});
 
-     const isPasswordMatch = await bcrypt.compare(password, hashedPasswordFromDB);
+// authen
 
-      
-
-     // Compare the input password with the hashed password from the database
-
-     if (isPasswordMatch) {
-       res.status(200).json({ message: 'Login successful' });
-     } else {
-       res.status(401).json({ error: 'Invalid username or password' });
-     }
-   } else {
-     res.status(401).json({ error: 'Invalid username or password' });
-   }
+app.post('/authen', async (req, res) => {
+  try {
+    // Check if Authorization header exists
+    if (!req.headers.authorization) {
+      return res.status(401).json({ error: 'Authorization header is missing' });
+    }
+    
+    // Split the Authorization header to extract the token
+    const parts = req.headers.authorization.split(' ');
+    if (parts.length !== 2 || parts[0].toLowerCase() !== 'bearer') {
+      return res.status(401).json({ error: 'Authorization header is in the incorrect format' });
+    }
+    
+    const token = parts[1];
+    
+    // Verify the JWT token
+    const decoded = jwt.verify(token, secret);
+    
+    // Send the decoded payload in the response
+    res.json({ decoded });
+  } catch (error) {
+    // If any error occurs during token verification
+    res.status(401).json({ error: 'Invalid token' });
+  }
 });
 
 
+// const axios = require('axios');
 
+// const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZENhcmRJRCI6ImlpY3QyMjIyIiwiaWF0IjoxNzA5MjA5OTA5LCJleHAiOjE3MDkyMTM1MDl9.It59Jt2bYVt6-HclezCpvDkoY9YVcyBxGKMaFFLWVJo';
+
+
+// axios.post('http://localhost:8000/authen', null, {
+//   headers: {
+//     'Authorization': `Bearer ${token}`
+//   }
+// })
+// .then(response => {
+//   console.log('Decoded payload:', response.data.decoded);
+// })
+// .catch(error => {
+//   console.error('Error:', error.response.data.error);
+// });
 
 
 

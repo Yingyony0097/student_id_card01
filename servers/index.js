@@ -9,7 +9,7 @@ const secret = 'FullstackLogin';
 
 app.use(bodyParser.json())
 
-let conn = null
+// let conn = null
 
 // function connectMySQL
 const connectMySQL = async () => {
@@ -29,11 +29,56 @@ const connectMySQL = async () => {
 }
 
 connectMySQL();
+//verifyToken
+
+
+const verifyToken = (req, res, next) => {
+  try {
+    console.log(req.headers)
+    // Check if Authorization header exists
+    if (!req.headers.authorization) {
+      return res.status(401).json({ error: 'Authorization header is missing' });
+      
+    }
+    
+    // Split the Authorization header to extract the token
+    const parts = req.headers.authorization.split(' ');
+    if (parts.length !== 2 || parts[0].toLowerCase() !== 'bearer') {
+      return res.status(401).json({ error: 'Authorization header is in the incorrect format' });
+    }
+    
+    const token = parts[1];
+    
+    // Verify the JWT token
+    const decoded = jwt.verify(token, secret);
+    
+    // Attach the decoded payload to the request object
+    req.decoded = decoded;
+    
+    // Call next middleware
+    next();
+  } catch (error) {
+    // If any error occurs during token verification
+    res.status(401).json({ error: 'Invalid token' });
+  }
+};
+
+
+
+const isAdmin = (req, res, next) => {
+  // Check if req.admin exists and has the role 'admin'
+  if (!req.admin || req.admin.role !== 'admin') {
+    return res.status(403).json({ error: 'Access denied. Only admins are allowed to access this resource.' });
+  }
+  next(); // Allow the request to proceed
+};
+
+
 
 
 //get
 
-app.get('/student', async (req, res) => {
+app.get('/student',verifyToken, async (req, res) => {
   try {
     let results = await conn.query('SELECT * FROM student')
     res.json(results[0])
@@ -45,9 +90,7 @@ app.get('/student', async (req, res) => {
 
 //post
 
-
-
-app.post('/student', async (req, res) => {
+app.post('/student',verifyToken,isAdmin, async (req, res) => {
   const data = req.body;
 
   try {
@@ -66,8 +109,68 @@ app.post('/student', async (req, res) => {
 });
 
 
+
+app.post('/admin', verifyToken, async (req, res) => {
+  const data = req.body;
+
+  try {
+    // Hash the password
+  const hashedPassword = await bcrypt.hash(data.Password, 10); // 10 is the saltRounds
+
+  // Insert the hashed password into the database
+  const result = await conn.query('INSERT INTO admin (username, Password) VALUES (?, ?)', [data.username, hashedPassword]);
+  
+  const adminId = result.insertId;
+  res.status(201).json({ message: 'Admin created successfully', adminId });
+  } catch (error) {
+    console.error('Error creating admin:', error.message);
+    res.status(500).json({ error: 'Error creating admin' });
+  }
+});
+
+
+app.post('/admin/login', async (req, res) => {
+  const { username, password } = req.body;
+  try {
+    const [adminResult] = await conn.query('SELECT * FROM admin WHERE username = ?', [username]);
+
+    if (adminResult.length === 0) {
+      return res.status(401).json({ error: 'Invalid username' });
+    }
+
+    const admin = adminResult[0];
+
+    if (!admin || !admin.password) {
+      return res.status(401).json({ error: 'Invalid username or password' });
+    }
+
+    const isPasswordMatch = await bcrypt.compare(password, admin.password);
+
+    if (isPasswordMatch) {
+      const token = jwt.sign({ UserName: admin.username }, secret, { expiresIn: '1h' });
+      return res.status(200).json({ message: 'Login successful', token });
+    } else {
+      return res.status(401).json({ error: 'Invalid username or password' });
+    }
+  } catch (error) {
+    console.error('Error logging in admin:', error.message);
+    return res.status(500).json({ error: 'Error logging in admin' });
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
 app.post('/login', async (req, res) => {
-  const { sdCardID, password } = req.body;
+  const { sdCardID, password }= req.body;
 
   try {
     const result = await conn.query('SELECT * FROM student WHERE sdCardID = ?', [sdCardID]);
@@ -75,7 +178,7 @@ app.post('/login', async (req, res) => {
 
     const student = result[0][0];
     if (!student) {
-      return res.status(401).json({ error: 'Invalid username or password' });
+      return res.status(401).json({ error: 'Invalid username ' });
     }
 
     const hashedPasswordFromDB = student.password;
@@ -85,7 +188,7 @@ app.post('/login', async (req, res) => {
       var token = jwt.sign({ sdCardID: student.sdCardID }, secret, { expiresIn: '1h' });
       res.status(200).json({ message: 'Login successful', token }); // Use res.status().json()
     } else {
-      res.status(401).json({ error: 'Invalid username or password' });
+      res.status(401).json({ error: 'Invalid  password' });
     }
   } catch (error) {
     console.error('Error logging in:', error.message);
@@ -93,54 +196,35 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// authen
 
-app.post('/authen', async (req, res) => {
-  try {
-    // Check if Authorization header exists
-    if (!req.headers.authorization) {
-      return res.status(401).json({ error: 'Authorization header is missing' });
+app.post('/login', async (req, res) => {
+  const { UserName, password }= req.body;
+
+  // try {
+    
+  // } catch (error) {
+  //   console.error('Error logging in:', error.message);
+  //   res.status(500).json({ error: 'Error logging in' });
+  // }
+
+  const result = await conn.query('SELECT * FROM admin WHERE UserName = ?', [UserName]);
+    console.log('Result:', result); // Log the result array
+
+    const admin = result[0][0]; // Change 'student' to 'admin'
+    if (!admin) {
+      return res.status(401).json({ error: 'Invalid username or password' });
     }
-    
-    // Split the Authorization header to extract the token
-    const parts = req.headers.authorization.split(' ');
-    if (parts.length !== 2 || parts[0].toLowerCase() !== 'bearer') {
-      return res.status(401).json({ error: 'Authorization header is in the incorrect format' });
+
+    const hashedPasswordFromDB = admin.password;
+    const isPasswordMatch = await bcrypt.compare(password, hashedPasswordFromDB);
+
+    if (isPasswordMatch) {
+      var token = jwt.sign({ UserName: admin.UserName }, secret, { expiresIn: '1h' });
+      res.status(200).json({ message: 'Login successful', token }); // Use res.status().json()
+    } else {
+      res.status(401).json({ error: 'Invalid username or password' });
     }
-    
-    const token = parts[1];
-    
-    // Verify the JWT token
-    const decoded = jwt.verify(token, secret);
-    
-    // Send the decoded payload in the response
-    res.json({ decoded });
-  } catch (error) {
-    // If any error occurs during token verification
-    res.status(401).json({ error: 'Invalid token' });
-  }
 });
-
-
-// const axios = require('axios');
-
-// const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZENhcmRJRCI6ImlpY3QyMjIyIiwiaWF0IjoxNzA5MjA5OTA5LCJleHAiOjE3MDkyMTM1MDl9.It59Jt2bYVt6-HclezCpvDkoY9YVcyBxGKMaFFLWVJo';
-
-
-// axios.post('http://localhost:8000/authen', null, {
-//   headers: {
-//     'Authorization': `Bearer ${token}`
-//   }
-// })
-// .then(response => {
-//   console.log('Decoded payload:', response.data.decoded);
-// })
-// .catch(error => {
-//   console.error('Error:', error.response.data.error);
-// });
-
-
-
 
 
 //getid
@@ -173,7 +257,7 @@ app.get('/student/:id', async (req, res) => {
 
 
 
-app.put('/student/:id', async (req, res) => {
+app.put('/student/:id', isAdmin,async (req, res) => {
   const id = req.params.id; // เปลี่ยนชื่อตัวแปรจาก sdCardID เป็น id
   const data = req.body;
 
@@ -214,7 +298,7 @@ app.put('/student/:id', async (req, res) => {
 
 //delete
 
-app.delete('/student/:id', [
+app.delete('/student/:id',isAdmin, [
   param('id').isInt().withMessage('ID must be an integer').toInt(),
 ], async (req, res) => {
   const errors = validationResult(req);
@@ -235,6 +319,10 @@ app.delete('/student/:id', [
     res.status(500).json({ error: 'Error deleting student' });
   }
 });
+
+
+
+
 
  
 app.listen(8000, async () => {

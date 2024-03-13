@@ -10,11 +10,10 @@ const secret = 'FullstackLogin';
 
 
 app.use(bodyParser.json())
-const port = process.env.APP_PORT
-
 const pnv = process.env
+const port = pnv.APP_PORT
 // let conn = null
-console.log(pnv)
+
 // function connectMySQL
 const connectMySQL = async () => {
   try {
@@ -23,7 +22,7 @@ const connectMySQL = async () => {
       user: pnv.DB_USER,
       password: pnv.DB_PASSOWRD,
       database: pnv.DB_NAME,
-      port: process.env.DB_PORT
+      port: pnv.DB_PORT
     });
 
     console.log('Connected to MySQL database');

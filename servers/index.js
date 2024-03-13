@@ -1,3 +1,4 @@
+require ('dotenv').config();
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
@@ -7,19 +8,22 @@ const bcrypt = require('bcrypt');
 var jwt = require('jsonwebtoken');
 const secret = 'FullstackLogin';
 
+
 app.use(bodyParser.json())
+const port = process.env.APP_PORT
 
+const pnv = process.env
 // let conn = null
-
+console.log(pnv)
 // function connectMySQL
 const connectMySQL = async () => {
   try {
     conn = await mysql.createConnection({
-      host: 'localhost',
-      user: 'root',
-      password: '',
-      database: 'e_student',
-      port: '3306'
+      host: pnv.DB_HOST,
+      user: pnv.DB_USER,
+      password: pnv.DB_PASSOWRD,
+      database: pnv.DB_NAME,
+      port: process.env.DB_PORT
     });
 
     console.log('Connected to MySQL database');
@@ -325,8 +329,8 @@ app.delete('/student/:id',isAdmin, [
 
 
  
-app.listen(8000, async () => {
+app.listen(port, async () => {
   // เรียกใช้ connectMySQL ตอน start server
   await connectMySQL()
-  console.log('Server started on port 8000')
+  console.log(`Server started on port ${port}`)
 })

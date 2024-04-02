@@ -4,7 +4,7 @@ import 'package:student_id_card/screen/app.dart';
 void main() => runApp(const Myapp());
 
 class Myapp extends StatelessWidget {
-  const Myapp({super.key});
+  const Myapp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

@@ -1,194 +1,142 @@
 import 'package:flutter/material.dart';
-import 'package:student_id_card/screen/search_student.dart'; // เพิ่มบรรทัดนี้
-import 'package:student_id_card/screen/student_edit.dart';
-import 'package:student_id_card/screen/student_add.dart';
-import 'package:student_id_card/screen/search_student.dart';
-import 'package:student_id_card/screen/login_page.dart'; // แก้ให้เรียกใช้ LoginPage แทน
-// ignore: unused_import
-import 'package:student_id_card/screen/admin_page.dart';
+import 'package:intl/intl.dart';
 
-class ShowCard extends StatefulWidget {
-  final dynamic data; // เปลี่ยนจาก Student เป็น dynamic
+class ShowStudentScreen extends StatelessWidget {
+  final Map<String, dynamic> studentData;
 
-  const ShowCard({Key? key, required this.data}) : super(key: key);
+  const ShowStudentScreen({Key? key, required this.studentData}) : super(key: key);
 
-  @override
-  State<ShowCard> createState() => _ShowCardState();
-}
-
-class _ShowCardState extends State<ShowCard> {
   @override
   Widget build(BuildContext context) {
-    // เพิ่มการตรวจสอบประเภทข้อมูลที่รับเข้ามา
-    if (widget.data is Student) {
-      final student = widget.data as Student; // แปลง widget.data เป็น Student
-      return Scaffold(
-        backgroundColor: const Color.fromARGB(244, 57, 76, 255),
-        body: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 50.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Image.asset(student.images),
-                  const SizedBox(height: 18),
-                  const Text(
-                    'ສະຖາບັນ ເຕັກໂນໂລຊີ ການສື່ສານຂໍ້ມມູນຂ່າວສານ',
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(255, 255, 255, 255)),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Institute of Infomation and Communications Technology',
-                    style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(255, 255, 255, 255)),
-                  ),
-                  const SizedBox(height: 18),
-                  const Text(
-                    "ບັດນັກສືກສາ ",
-                    style: TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold,
-                        color:Color.fromARGB(255, 255, 255, 255)),
-                  ),
-                  const SizedBox(height: 18),
-                  SizedBox(
-                    height: 100,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10.0),
-                      child: Image.asset(student.images),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    '${student.fname_la} ${student.lname_la}',
-                    style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(255, 255, 255, 255)),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    '${student.fname_en} ${student.lname_en}',
-                    style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(255, 255, 255, 255)),
-                  ),
-                  const SizedBox(height: 18),
-                  Padding(
-                    padding: const EdgeInsets.all(1.0),
-                    child: Row(
-                      children: [
-                        Text(
-                          'ລະຫັດນັກສືກສາ:',
-                          style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 255, 255, 255)),
-                        ),
-                        const SizedBox(width: 20,),
-                        Text(
-                          student.sdCardID,
-                          style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 255, 255, 255)),
-                        )
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  Padding(
-                    padding: const EdgeInsets.all(1.0),
-                    child: Row(
-                      children: [
-                        Text(
-                          'ວັນ,ດືອນ,ປີເກີດ:',
-                          style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 255, 255, 255)),
-                        ),
-                        const SizedBox(width: 20,),
-                        Text(
-                          student.date_of_birth,
-                          style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 255, 255, 255)),
-                        )
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  Padding(
-                    padding: const EdgeInsets.all(1.0),
-                    child: Row(
-                      children: [
-                        Text(
-                          'ວັນທີ່ອອກບັດ:',
-                          style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 255, 255, 255)),
-                        ),
-                        const SizedBox(width: 20,),
-                        Text(
-                          student.date_start,
-                          style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 255, 255, 255)),
-                        )
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  Padding(
-                    padding: const EdgeInsets.all(1.0),
-                    child: Row(
-                      children: [
-                        Text(
-                          'ກຳນົດນຳໃຊ້ບັດ:',
-                          style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 255, 255, 255)),
-                        ),
-                        const SizedBox(width: 20,),
-                        Text(
-                          student.date_end,
-                          style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 255, 255, 255)),
-                        )
-                      ],
-                    ),
-                  ),
-                ],
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    return Scaffold(
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: Container(
+                color: Colors.blue[900],
               ),
             ),
-          ),
+            Container(
+              color: Colors.blue.withOpacity(0),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Center(
+                      child: SizedBox(
+                        width: 100,
+                        height: 100,
+                        child: Image.asset(
+                          'assets/images/logo.png',
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                    const Text(
+                      'ສະຖາບັນ ເຕັກໂນໂລຊີການສື່ສານຂໍ້ມູນຂ່າວສານ',
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                      textAlign: TextAlign.center,
+                    ),
+                    const Text(
+                      'Institute Of Information and Communication Technology',
+                      style: TextStyle(fontSize: 14, color: Colors.white),
+                      textAlign: TextAlign.center,
+                    ),
+                    const Text(
+                      'ບັດນັກສືກສາ',
+                      style: TextStyle(fontSize: 25, color: Colors.white),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                    Center(
+                      child: Image.network(
+                        studentData['images'],
+                        width: 100,
+                        height: 100,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Center(
+                          child: Text(
+                            '${studentData['gender']} ${studentData['fname_la']} ${studentData['lname_la']}',
+                            style: const TextStyle(
+                              fontSize: 25,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Center(
+                          child: Text(
+                            '${studentData['phed']} ${studentData['fname_en']} ${studentData['lname_en']}',
+                            style: const TextStyle(
+                              fontSize: 25,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Text(
+                          'ລະຫັດບັດນັກສືກສາ: ${studentData['sdCardID']}',
+                          style: const TextStyle(fontSize: 20, color: Colors.white),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'ວັນ.ເດືອນ.ປີ ເກີດ: ${DateFormat('dd MMMM yyyy').format(DateTime.parse(studentData['date_of_birth']))}',
+                          style: const TextStyle(fontSize: 20, color: Colors.white),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'ວັນທີ່ອອກບັດ: ${DateFormat('dd MMMM yyyy').format(DateTime.parse(studentData['date_start']))}',
+                          style: const TextStyle(fontSize: 20, color: Colors.white),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            'ກຳນົດນຳໃຊ້ບັດ: ${DateFormat('dd MMMM yyyy').format(DateTime.parse(studentData['date_end']))}',
+                            style: const TextStyle(
+                              fontSize: 20,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.left,
+                          ),
+                        ),
+                        Image.asset(
+                          'assets/images/F-Darf.png',
+                          width: 100,
+                          height: 100,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
-      );
-    } else {
-      // หากข้อมูลที่รับเข้ามาไม่ใช่ Student ให้แสดงข้อความ "Invalid Data"
-      return Scaffold(
-        body: Center(
-          child: Text(
-            'Invalid Data',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-        ),
-      );
-    }
+      ),
+    );
   }
 }

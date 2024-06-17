@@ -31,45 +31,41 @@ class _SearchStudentState extends State<SearchStudent> {
       if (sdCardID.isEmpty) {
         throw Exception('Please enter a valid sdCardID');
       }
-     
+
       var headers = {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
       };
-      var dio = Dio();
-      var response = await dio.get(
-        'http://192.168.0.193:8000/student/',
-        queryParameters: {'sdCardID': sdCardID},
+
+      var response = await _dio.get(
+        'http://192.168.43.127:8000/student/$sdCardID',
         options: Options(headers: headers),
       );
 
       if (response.statusCode == 200) {
-        final dynamic responseData = response.data;
-        if (responseData.runtimeType == Map) {
-          final student = Student.fromJson(responseData);
-         
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ShowCard(data: student),
-            ),
-          );
-
-        } else if (responseData.runtimeType == List) {
-          // วนลูปผ่าน List และสร้างอ็อบเจกต์ Student จากข้อมูลแต่ละองค์ประกอบ
-          List<Student> students = [];
-          for (var studentData in responseData) {
-            students.add(Student.fromJson(studentData));
+        final responseData = response.data;
+        if (responseData != null) {
+          try {
+            Map<String, dynamic> studentData = responseData;
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    ShowStudentScreen(studentData: studentData),
+              ),
+            );
+          } catch (e) {
+            print('Error parsing student data: $e');
           }
-          // ในที่นี้คุณสามารถทำตามความเหมาะสม ยกตัวอย่างเช่นการแสดงรายชื่อนักเรียนทั้งหมด
         } else {
-          throw Exception('Invalid data format');
+          print('No student found');
         }
       } else {
-        throw Exception('Failed to load data');
+        print('Failed to load data');
       }
     } catch (e) {
-      print('Error: $e');
+      print('Error: ${e.toString()}');
+      // ignore: use_build_context_synchronously
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -104,7 +100,7 @@ class _SearchStudentState extends State<SearchStudent> {
               Image.asset('assets/images/logo.png'),
               const SizedBox(height: 18),
               const Text(
-                'Search Student',
+                'ສະຖາບັນ ເຕັກໂນໂລຊີການສື່ສານຂໍ້ມູນຂ່າວສານ',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 100),
@@ -115,8 +111,9 @@ class _SearchStudentState extends State<SearchStudent> {
                     child: TextField(
                       controller: _searchController,
                       decoration: const InputDecoration(
-                        labelText: 'Enter Student ID',
-                        labelStyle: TextStyle(color: Colors.green),
+                        labelText: 'ກະລຸນາໃສ່ລະຫັດບັດນັກສືກສາ',
+                        labelStyle:
+                            TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -127,66 +124,25 @@ class _SearchStudentState extends State<SearchStudent> {
                       SharedPreferences prefs =
                           await SharedPreferences.getInstance();
                       String? token = prefs.getString('token');
-                      await _searchStudent(_searchController.text, token);
+                      try {
+                        await _searchStudent(_searchController.text, token);
+                      } catch (e) {
+                        print('Error searching student: $e');
+                      }
                     },
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(
-                          const Color.fromARGB(192, 39, 2, 226)),
-                      minimumSize:
-                          MaterialStateProperty.all(const Size(100, 50)),
+                    style: ElevatedButton.styleFrom(
+                      primary: Color.fromARGB(192, 39, 2, 226), // Set the button color to blue
                     ),
-                    child: const Text(
-                      'Search',
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
-                      ),
-                    ),
+                    child: const Text('ຄົ້ນຫາ',
+                    style: TextStyle(color: Color.fromARGB(219, 255, 255, 255)),)
                   ),
                 ],
               ),
+              const SizedBox(height: 50),
             ],
           ),
         ),
       ),
-    );
-  }
-}
-
-class Student {
-  final String images;
-  final String sdCardID;
-  final String fname_la;
-  final String lname_la;
-  final String fname_en;
-  final String lname_en;
-  final String date_of_birth;
-  final String date_start;
-  final String date_end;
-
-  Student({
-    required this.images,
-    required this.sdCardID,
-    required this.fname_la,
-    required this.lname_la,
-    required this.fname_en,
-    required this.lname_en,
-    required this.date_of_birth,
-    required this.date_start,
-    required this.date_end,
-  });
-
-  factory Student.fromJson(Map<String, dynamic> json) {
-    return Student(
-      images: json['images'],
-      sdCardID: json['sdCardID'],
-      fname_la: json['fname_la'],
-      lname_la: json['lname_la'],
-      fname_en: json['fname_en'],
-      lname_en: json['lname_en'],
-      date_of_birth: json['date_of_birth'],
-      date_start: json['date_start'],
-      date_end: json['date_end'],
     );
   }
 }

@@ -1,18 +1,16 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:student_id_card/screen/admin_page.dart';
-import 'package:student_id_card/screen/class/it03.dart';
-import 'package:student_id_card/screen/utils.dart';
 
 class StudentEdit extends StatefulWidget {
   final Student? student;
 
   const StudentEdit({Key? key, this.student}) : super(key: key);
+
   @override
   State<StudentEdit> createState() => _StudentEditState();
 }
@@ -20,10 +18,7 @@ class StudentEdit extends StatefulWidget {
 class _StudentEditState extends State<StudentEdit> {
   final _formKey = GlobalKey<FormState>();
 
-  String? _selectedMajor;
-  int? _selectedYear;
-  File? _imageFile;
-  Uint8List? _image;
+  PickedFile? _image;
 
   TextEditingController sdCardIDController = TextEditingController();
   TextEditingController fnameLaController = TextEditingController();
@@ -38,17 +33,26 @@ class _StudentEditState extends State<StudentEdit> {
   TextEditingController updatedbyController = TextEditingController();
   TextEditingController yearController = TextEditingController();
 
-  void selectImage() async {
-    Uint8List img = await pickImage(ImageSource.gallery);
+ void _pickImage() async {
+  final picker = ImagePicker();
+  final pickedImage = await picker.pickImage(source: ImageSource.gallery);
+
+  if (pickedImage != null) {
+    // ทำอะไรกับรูปที่เลือกได้ต่อไป
     setState(() {
-      _image = img;
+      _image = pickedImage as PickedFile?; // กำหนดค่าให้กับตัวแปร _image
     });
+  } else {
+    print('No image selected.');
   }
-   void sendDataToServer() async {
+}
+
+
+
+  void sendDataToServer() async {
     Dio dio = Dio();
     try {
       if (_formKey.currentState!.validate()) {
-        // ดึงข้อมูลจากฟอร์ม
         String sdCardID = sdCardIDController.text;
         String fname_la = fnameLaController.text;
         String lname_la = lnameLaController.text;
@@ -62,8 +66,7 @@ class _StudentEditState extends State<StudentEdit> {
         String password = passwordController.text;
         String updated_by = updatedbyController.text;
 
-        // ส่งข้อมูลไปยังเซิร์ฟเวอร์
-        Response response = await dio.put('http://192.168.0.191:8000/student/', data: {
+        FormData formData = FormData.fromMap({
           'sdCardID': sdCardID,
           'fname_la': fname_la,
           'lname_la': lname_la,
@@ -76,13 +79,19 @@ class _StudentEditState extends State<StudentEdit> {
           'date_end': date_end,
           'password': password,
           'updated_by': updated_by,
+          'image': _image != null
+              ? await MultipartFile.fromFile(File(_image!.path).path,
+                  filename: 'user_image')
+              : null,
         });
 
-        // ดำเนินการเพิ่มเติมหลังจากได้รับการตอบกลับจากเซิร์ฟเวอร์
+        Response response = await dio.put(
+            'http://192.168.0.191:8000/student/$sdCardID',
+            data: formData);
+
         print(response.data);
       }
     } catch (e) {
-      // จัดการข้อผิดพลาดหากเกิดข้อผิดพลาดขณะส่งข้อมูล
       print('Error sending data to server: $e');
     }
   }
@@ -275,6 +284,7 @@ class _StudentEditState extends State<StudentEdit> {
                 _buildTextField(
                   labelText: 'ລະຫັດຜ່ານ:',
                   hintText: 'ກະລຸນາປ້ອນລະຫັດຜ່ານ',
+                  obscureText: true,
                   controller: passwordController,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -285,28 +295,41 @@ class _StudentEditState extends State<StudentEdit> {
                 ),
                 const SizedBox(height: 25),
                 _buildTextField(
-                  labelText: 'ຜູ້ປ່ຽນ:',
-                  hintText: 'ກະລຸນາປ້ອນຜູ້ປ່ຽນ',
+                  labelText: 'ຜູ້ອັບເດດ:',
+                  hintText: 'ກະລຸນາປ້ອນຜູ້ອັບເດດ',
                   controller: updatedbyController,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'ກະລຸນາປ້ອນຜູ້ປ່ຽນ';
+                      return 'ກະລຸນາປ້ອນຜູ້ອັບເດດ';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 25),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        // Process data
-                        sendDataToServer();
-                      }
-                    },
-                    child: const Text('ບັນທຶກ'),
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: _pickImage,
+                        child: const Text('ເລືອກຮູບພາບ'),
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: sendDataToServer,
+                        child: const Text('ບັນທຶກ'),
+                      ),
+                    ),
+                  ],
                 ),
+                if (_image != null) ...[
+                  const SizedBox(height: 20),
+                  Image.file(
+                    File(_image!.path),
+                    height: 150,
+                  ),
+                ],
               ],
             ),
           ),
@@ -319,17 +342,17 @@ class _StudentEditState extends State<StudentEdit> {
     required String labelText,
     required String hintText,
     required TextEditingController controller,
-    required String? Function(String?) validator,
+    bool obscureText = false,
+    String? Function(String?)? validator,
   }) {
     return TextFormField(
       decoration: InputDecoration(
         labelText: labelText,
         hintText: hintText,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        border: OutlineInputBorder(),
       ),
       controller: controller,
+      obscureText: obscureText,
       validator: validator,
     );
   }
@@ -338,22 +361,18 @@ class _StudentEditState extends State<StudentEdit> {
     required String labelText,
     required String hintText,
     required TextEditingController controller,
-    required String? Function(String?) validator,
-    required GestureTapCallback onTap,
+    void Function()? onTap,
+    String? Function(String?)? validator,
   }) {
     return TextFormField(
       decoration: InputDecoration(
         labelText: labelText,
         hintText: hintText,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        suffixIcon: InkWell(
-          onTap: onTap,
-          child: const Icon(Icons.calendar_today),
-        ),
+        border: OutlineInputBorder(),
       ),
       controller: controller,
+      readOnly: true,
+      onTap: onTap,
       validator: validator,
     );
   }
@@ -362,63 +381,83 @@ class _StudentEditState extends State<StudentEdit> {
     required String labelText,
     required String hintText,
     required TextEditingController controller,
-    required String? Function(String?) validator,
+    String? Function(String?)? validator,
   }) {
-    return DropdownButtonFormField<String>(
+    return TextFormField(
       decoration: InputDecoration(
         labelText: labelText,
         hintText: hintText,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        border: OutlineInputBorder(),
       ),
-      value: _selectedMajor,
-      onChanged: (newValue) {
-        setState(() {
-          _selectedMajor = newValue;
-        });
-      },
+      controller: controller,
       validator: validator,
-      items: [
-        'ເຕັກໂນໂລຊີການສື່ສານຂໍ້ມູນຂ່າວສານ(IT)',
-        'ວິສະວະກຳເຕັກໂນຊີການສື່ສານ(ICT)',
-        'ຄວາມປອດໄພທາງໄຊເບີ (CB)',
-      ].map<DropdownMenuItem<String>>((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
-      }).toList(),
     );
   }
 
- Widget _buildYearDropdown({
-  required String labelText,
-  required String hintText,
-  required TextEditingController controller,
-  required String? Function(String?) validator,
-}) {
-  return DropdownButtonFormField<int>(
-    decoration: InputDecoration(
-      labelText: labelText,
-      hintText: hintText,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+  Widget _buildYearDropdown({
+    required String labelText,
+    required String hintText,
+    required TextEditingController controller,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      decoration: InputDecoration(
+        labelText: labelText,
+        hintText: hintText,
+        border: OutlineInputBorder(),
       ),
-    ),
-    value: _selectedYear,
-    onChanged: (int? newValue) {
-      setState(() {
-        _selectedYear = newValue;
-      });
-    },
-    items: <int>[1, 2, 3, 4].map<DropdownMenuItem<int>>((int value) {
-      return DropdownMenuItem<int>(
-        value: value,
-        child: Text('ປີ $value'),
-      );
-    }).toList(),
-  
-  );
+      controller: controller,
+      validator: validator,
+      keyboardType: TextInputType.number,
+    );
+  }
 }
+
+class Student {
+  final String sdCardID;
+  final String fnameLa;
+  final String lnameLa;
+  final String fnameEn;
+  final String lnameEn;
+  final String dateOfBirth;
+  final String fieldOfStudy;
+  final String year;
+  final String dateStart;
+  final String dateEnd;
+  final String password;
+  final String updatedBy;
+
+  Student({
+    required this.sdCardID,
+    required this.fnameLa,
+    required this.lnameLa,
+    required this.fnameEn,
+    required this.lnameEn,
+    required this.dateOfBirth,
+    required this.fieldOfStudy,
+    required this.year,
+    required this.dateStart,
+    required this.dateEnd,
+    required this.password,
+    required this.updatedBy,
+  });
+
+  factory Student.fromJson(Map<String, dynamic> json) {
+    return Student(
+      sdCardID: json['sdCardID'],
+      fnameLa: json['fname_la'],
+      lnameLa: json['lname_la'],
+      fnameEn: json['fname_en'],
+      lnameEn: json['lname_en'],
+      dateOfBirth: json['date_of_birth'],
+      fieldOfStudy: json['field_of_study'],
+      year: json['year'],
+      dateStart: json['date_start'],
+      dateEnd: json['date_end'],
+      password: json['password'],
+      updatedBy: json['updated_by'],
+    );
+  }
+
+  
 }

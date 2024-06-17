@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:student_id_card/screen/admin_page.dart';
-import 'package:student_id_card/screen/search_student_edit.dart';
+import 'package:student_id_card/screen/student_page.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -57,7 +57,7 @@ class _LoginFormState extends State<_LoginForm> {
 
     try {
       var response = await Dio().post(
-        'http://192.168.0.193:8000/admin/login',
+        'http://192.168.43.127:8000/admin/login',
         data: {
           "username": username,
           "password": password
@@ -68,6 +68,7 @@ class _LoginFormState extends State<_LoginForm> {
         var responseData = response.data;
         var isAdmin = responseData['isAdmin'];
         var token = responseData['token'];
+        var studentData = responseData['studentData'];
 
         // Save username, isAdmin status, and token to SharedPreferences
         SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -75,17 +76,18 @@ class _LoginFormState extends State<_LoginForm> {
         await prefs.setBool('isAdmin', isAdmin);
         await prefs.setString('token', token);
 
-        if (isAdmin) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AdminPage()),
-          );
-        } else {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const SearchEdit()),
-          );
+        if (!isAdmin) {
+          // Store student data in SharedPreferences
+          await prefs.setString('student_data', jsonEncode(studentData));
         }
+
+        // Navigate to appropriate page based on isAdmin status
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => isAdmin ? AdminPage() : StudentPage(),
+          ),
+        );
       }
     } catch (e) {
       // Handle login error
@@ -193,54 +195,54 @@ class _LoginFormState extends State<_LoginForm> {
           Image.asset('assets/images/logo.png'),
           const SizedBox(height: 20),
           const Text(
-            'Login',
+            'ສະຖາບັນ ເຕັກໂນໂລຊີການສື່ສານຂໍ້ມູນຂ່າວສານ',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 20),
           const Text(
-            'Username:',
+            'ລະຫັດບັດນັກສືກສາ:',
             style: TextStyle(fontSize: 20, color: Colors.black),
           ),
           const SizedBox(height: 10),
           _buildTextField(
-            'Enter your username',
+            'ກະລຸນາປ້ອນລະຫັດບັດນັກສືກສາ',
             false,
             _usernameController,
             (value) {
               if (value == null || value.isEmpty) {
-                return 'Please enter your username';
+                return 'ກະລຸນາປ້ອນລະຫັດບັດນັກສືກສາ';
               }
               return null;
             },
           ),
           const SizedBox(height: 20),
           const Text(
-            'Password:',
+            'ລະຫັດຜ່ານ:',
             style: TextStyle(fontSize: 20, color: Colors.black),
           ),
           const SizedBox(height: 10),
           _buildTextField(
-            'Enter your password',
+            'ກະລຸນາປ້ອນລະຫັດຜ່ານ',
             true,
             _passwordController,
             (value) {
               if (value == null || value.isEmpty) {
-                return 'Please enter your password';
+                return 'ກະລຸນາປ້ອນລະຫັດຜ່ານ';
               }
               return null;
             },
           ),
           const SizedBox(height: 20),
-          _buildButton('Login', _login),
-          const SizedBox(height: 20),
-        ],
-      ),
-    );
-  }
+_buildButton('ເຂົ້າສູ່ລະບົບ', _login),
+const SizedBox(height: 20),
+],
+),
+);
+}
 }
 
 void main() {
-  runApp(const MaterialApp(
-    home: LoginPage(),
-  ));
+runApp(const MaterialApp(
+home: LoginPage(),
+));
 }

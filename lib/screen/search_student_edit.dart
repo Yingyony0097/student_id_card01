@@ -10,7 +10,6 @@ import 'package:student_id_card/screen/class/it01.dart';
 import 'package:student_id_card/screen/class/it02.dart';
 import 'package:student_id_card/screen/class/it03.dart';
 import 'package:student_id_card/screen/routes.dart';
-import 'package:student_id_card/screen/student_edit.dart';
 
 class SearchEdit extends StatefulWidget {
   const SearchEdit({Key? key}) : super(key: key);

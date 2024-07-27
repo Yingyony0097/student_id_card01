@@ -5,8 +5,7 @@ import 'package:student_id_card/screen/show_student_card.dart'; // แก้เ�
 import 'package:student_id_card/screen/student_edit.dart';
 import 'package:student_id_card/screen/student_add.dart';
 import 'package:student_id_card/screen/search_student.dart';
-import 'package:student_id_card/screen/login_page.dart'; // แก้ให้เรียกใช้ LoginPage แทน
-// ignore: unused_import
+import 'package:student_id_card/screen/login_page.dart'; 
 import 'package:student_id_card/screen/admin_page.dart';
 
 class AppRoute {

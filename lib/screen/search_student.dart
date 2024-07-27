@@ -38,7 +38,7 @@ class _SearchStudentState extends State<SearchStudent> {
       };
 
       var response = await _dio.get(
-        'http://192.168.43.127:8000/student/$sdCardID',
+        'http://192.168.190.62:8000/student/$sdCardID',
         options: Options(headers: headers),
       );
 

@@ -26,6 +26,7 @@ android {
     namespace "com.example.student_id_card"
     compileSdkVersion flutter.compileSdkVersion.toInteger() // Corrected line
     ndkVersion flutter.ndkVersion
+    
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

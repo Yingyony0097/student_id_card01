@@ -31,7 +31,7 @@ class _IT01State extends State<IT01> {
   Future<List<Student>> fetchStudents(String fieldOfStudy, String year, String token) async {
     try {
       Dio dio = Dio(BaseOptions(headers: {'Authorization': 'Bearer $token'}));
-      final response = await dio.get('http://192.168.43.127:8000/student/studentsyear?field_of_study=$fieldOfStudy&year=$year');
+      final response = await dio.get('http://192.168.190.62:8000/student/studentsyear?field_of_study=$fieldOfStudy&year=$year');
 
       if (response.statusCode == 200) {
         List<Student> students = (response.data as List).map((item) => Student.fromJson(item)).toList();
@@ -47,7 +47,7 @@ class _IT01State extends State<IT01> {
   Future<void> deleteStudent(int id) async {
     try {
       Dio dio = Dio(BaseOptions(headers: {'Authorization': 'Bearer $token'}));
-      await dio.delete('http://192.168.43.127:8000/student/$id');
+      await dio.delete('http://192.168.190.62:8000/student/$id');
       // After deleting, reload the students list
       setState(() {
         futureStudents = fetchStudents('IT', '1', token);

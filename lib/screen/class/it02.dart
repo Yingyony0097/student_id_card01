@@ -31,7 +31,7 @@ class _IT02State extends State<IT02> {
   Future<List<Student>> fetchStudents(String fieldOfStudy, String year, String token) async {
     try {
       Dio dio = Dio(BaseOptions(headers: {'Authorization': 'Bearer $token'}));
-      final response = await dio.get('http://192.168.43.127:8000/student/studentsyear?field_of_study=$fieldOfStudy&year=$year');
+      final response = await dio.get('http://192.168.190.62:8000/student/studentsyear?field_of_study=$fieldOfStudy&year=$year');
 
       if (response.statusCode == 200) {
         List<Student> students = (response.data as List).map((item) => Student.fromJson(item)).toList();

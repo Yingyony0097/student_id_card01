@@ -41,14 +41,14 @@ class _StudentAddState extends State<StudentAdd> {
   final TextEditingController _updatedByController = TextEditingController();
   final TextEditingController _fieldOfStudyController = TextEditingController();
   final TextEditingController _yearController = TextEditingController();
-  
+
   get floatingActionButton => null;
 
- @override
-void initState() {
-  super.initState();
-  _getToken();
-}
+  @override
+  void initState() {
+    super.initState();
+    _getToken();
+  }
 
   void _getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -57,90 +57,90 @@ void initState() {
     });
   }
 
- void selectImage() async {
-  Uint8List? img = await pickImage(ImageSource.gallery);
-  if (img != null) {
-    setState(() {
-      _image = img;
-    });
+  void selectImage() async {
+    Uint8List? img = await pickImage(ImageSource.gallery);
+    if (img != null) {
+      setState(() {
+        _image = img;
+      });
+    }
   }
-}
-  void _createStudent() async {
-    if (_formKey.currentState!.validate()) {
-      if (_formKey.currentState!.validate()) {
+
+void _createStudent() async {
+  if (_formKey.currentState!.validate()) {
     if (_image == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('กรุณาเลือกรูปภาพ'),
-        ),
+        const SnackBar(content: Text('Please select an image')),
       );
       return;
     }
-      Dio dio = Dio();
-      dio.options.headers['Authorization'] = 'Bearer $_token';
 
-      Map<String, dynamic> data = {
-        'sdCardID': _sdCardIDController.text,
-        'gender': __genderController.text,
-        'fname_la': _fnameLaController.text,
-        'lname_la': _lnameLaController.text,
-        'phed': _phedController.text,
-        'fname_en': _fnameEnController.text,
-        'lname_en': _lnameEnController.text,
-        'date_of_birth': _dateOfBirthController.text,
-        'date_start': _dateStartController.text,
-        'date_end': _dateEndController.text,
-        'images': _image,
-        'password': _passwordController.text,
-        'created_by': _createdByController.text,
-        'updated_by': _updatedByController.text,
-        'field_of_study': _fieldOfStudyController.text,
-        'year': _yearController.text,
-      };
-      
+    Dio dio = Dio();
+    dio.options.headers['Authorization'] = 'Bearer $_token';
 
-      try {
-        Response response = await dio.post(
-          'http://192.168.43.127:8000/student/',
-          data: data,
+    // Create form data
+    FormData formData = FormData.fromMap({
+      'sdCardID': _sdCardIDController.text,
+      'gender': _selectedGender,
+      'fname_la': _fnameLaController.text,
+      'lname_la': _lnameLaController.text,
+      'phed': _selectedPhed,
+      'fname_en': _fnameEnController.text,
+      'lname_en': _lnameEnController.text,
+      'date_of_birth': _dateOfBirthController.text,
+      'date_start': _dateStartController.text,
+      'date_end': _dateEndController.text,
+      'image': MultipartFile.fromBytes(_image!, filename: 'student_image.jpg'),
+      'password': _passwordController.text,
+      'created_by': _createdByController.text,
+      'updated_by': _updatedByController.text,
+      'field_of_study': _selectedMajor,
+      'year': _selectedYear,
+    });
+
+    try {
+      Response response = await dio.post(
+        'http://192.168.205.62:8000/student/',
+        data: formData,
+        options: Options(
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        ),
+      );
+
+      if (response.statusCode == 201) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const AdminPage()),
         );
-        if (response.statusCode == 200) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const AdminPage(),
-            ),
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to create student: ${response.data['error']}')),
+        );
+      }
+    } catch (e) {
+      if (e is DioError) {
+        if (e.response != null) {
+          print("Error Response: ${e.response!.data}");
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: ${e.response!.statusMessage}')),
           );
         } else {
+          print("Error: ${e.message}");
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('ການສ້າງນັກຮຽນບໍ່ສຳເລັດ'),
-            ),
+            SnackBar(content: Text('Error: ${e.message}')),
           );
         }
-        
-      } catch (e) {
-        // Handle different error cases
-        // ignore: deprecated_member_use
-        if (e is DioError) {
-          if (e.response != null && e.response!.statusCode == 413) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('ขนาดข้อมูลที่ส่งเกินกว่าที่เซิร์ฟเวอร์อนุญาต'),
-              ),
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Error: $e'),
-              ),
-            );
-          }
-        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Unexpected error: $e')),
+        );
       }
     }
   }
-  }
+}
+
   @override
   Widget build(BuildContext context) {
     TextEditingController _birthdateController = TextEditingController();
@@ -157,12 +157,31 @@ void initState() {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 10),
-                const Text(
-                  'ກະລຸນາປ້ອນຂໍ້ມູນນັກສືກສາທີ່ຕ້ອງການເພີ່ມ',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.amber,
+                Center(
+                  child: Image.asset(
+                    'assets/images/logo.png',
+                    height: 120, // Set height as per your requirement
+                    // Adjust fit and alignment as needed
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Center(
+                  child: Text(
+                    'ສະຖາບັນ ເຕັກໂນໂລຊີ ການສື່ສານຂໍ້ມມູນຂ່າວສານ',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Center(
+                  child: Text(
+                    'ກະລຸນາປ້ອນຂໍ້ມູນນັກສືກສາທີ່ຕ້ອງການເພີ່ມ',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 255, 15, 15),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 35),
@@ -176,18 +195,6 @@ void initState() {
                     }
                     return null;
                   },
-                ),
-                _buildGenderDropdown(
-                  labelText: 'ເພດ:',
-                  hintText: 'ກະລຸນາເລືອກເພດ',
-                  value: _selectedGender,
-                  controller: _sdCardIDController,
-                  onChanged: (newValue) {
-                    setState(() {
-                      _selectedGender = newValue;
-                    });
-                  },
-                  validator: null,
                 ),
                 const SizedBox(height: 25),
                 _buildTextField(
@@ -214,14 +221,14 @@ void initState() {
                   },
                 ),
                 const SizedBox(height: 25),
-                _buildPhedDropdown(
+                _buildGenderDropdown(
                   labelText: 'ເພດ:',
                   hintText: 'ກະລຸນາເລືອກເພດ',
-                  value: _selectedPhed,
+                  value: _selectedGender,
                   controller: _sdCardIDController,
                   onChanged: (newValue) {
                     setState(() {
-                      _selectedPhed = newValue;
+                      _selectedGender = newValue;
                     });
                   },
                   validator: null,
@@ -249,6 +256,19 @@ void initState() {
                     }
                     return null;
                   },
+                ),
+                const SizedBox(height: 25),
+                _buildPhedDropdown(
+                  labelText: 'ເພດ:',
+                  hintText: 'ກະລຸນາເລືອກເພດ',
+                  value: _selectedPhed,
+                  controller: _sdCardIDController,
+                  onChanged: (newValue) {
+                    setState(() {
+                      _selectedPhed = newValue;
+                    });
+                  },
+                  validator: null,
                 ),
                 const SizedBox(height: 25),
                 _buildDateField(
@@ -432,12 +452,26 @@ void initState() {
                 ),
                 const SizedBox(height: 10),
                 SizedBox(
-              width: double.infinity,
-              child: FloatingActionButton(
-                onPressed: _createStudent,
-                child: Icon(Icons.add),
-              ),
-            ),
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _createStudent,
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(
+                        Color.fromARGB(
+                            255, 17, 0, 255), // สีพื้นหลังเป็นสีน้ำเงินเข้ม
+                      ),
+                    ),
+                    child: const Text(
+                      'ເພິ່ມນັກສືກສາ', // ข้อความที่จะแสดงบนปุ่ม
+                      style: TextStyle(
+                        color: Colors.white, // สีตัวหนังสือของข้อความในปุ่ม
+                        fontWeight:
+                            FontWeight.bold, // ตั้งค่าตัวหนังสือเป็นตัวหนา
+                        fontSize: 16, // ขนาดตัวหนังสือ
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -550,7 +584,8 @@ Widget _buildGenderDropdown({
   required String hintText,
   required Function? validator,
   required String? value,
-  required Function(String?) onChanged, required TextEditingController controller,
+  required Function(String?) onChanged,
+  required TextEditingController controller,
 }) {
   return DropdownButtonFormField<String>(
     decoration: InputDecoration(
@@ -579,7 +614,8 @@ Widget _buildPhedDropdown({
   required String hintText,
   required Function? validator,
   required String? value,
-  required Function(String?) onChanged, required TextEditingController controller,
+  required Function(String?) onChanged,
+  required TextEditingController controller,
 }) {
   return DropdownButtonFormField<String>(
     decoration: InputDecoration(

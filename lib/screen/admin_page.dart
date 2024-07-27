@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:student_id_card/screen/adminAdd.dart';
+import 'package:student_id_card/screen/adminEdit.dart';
 import 'package:student_id_card/screen/login_page.dart'; // แก้เป็น 'login_page.dart'
 import 'package:student_id_card/screen/search_student.dart';
 import 'package:student_id_card/screen/search_student_edit.dart';
@@ -59,16 +60,23 @@ class AdminPage extends StatelessWidget {
                     MaterialPageRoute(builder: (context) => const StudentAdd()),
                   );
                 }),
-                _buildButton('ເພີ່ມຜູ້ດູແລລະບົບ', () {
+               
+                _buildButton('ແກ້ໄຂຂໍ້ມູນນັກສືກສາ', () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SearchEdit()),
+                  );
+                }),
+                 _buildButton('ເພີ່ມຜູ້ດູແລລະບົບ', () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const AdminAdd()),
                   );
                 }),
-                _buildButton('ແກ້ໄຂຂໍ້ມູນນັກສືກສາ', () {
+                 _buildButton('ແກ້ໄຂຂໍ້ມູນຜູ້ດູແລລະບົບ', () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const SearchEdit()),
+                    MaterialPageRoute(builder: (context) => const AdminEdit()),
                   );
                 }),
                 const SizedBox(height: 100),

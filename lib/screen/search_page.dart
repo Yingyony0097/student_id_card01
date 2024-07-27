@@ -42,7 +42,7 @@ class _SearchPageState extends State<SearchPage> {
 
   Future<void> _search() async {
     try {
-      final response = await _dio.get('http://192.168.43.127:8000/student/search?q=${widget.searchQuery}');
+      final response = await _dio.get('http://192.168.205.62:8000/student/search?q=${widget.searchQuery}');
       final data = response.data;
       setState(() {
         _searchResults = List<SearchResult>.from(data.map((x) => SearchResult.fromJson(x)));

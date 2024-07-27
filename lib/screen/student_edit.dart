@@ -86,7 +86,7 @@ class _StudentEditState extends State<StudentEdit> {
         });
 
         Response response = await dio.put(
-            'http://192.168.0.191:8000/student/$sdCardID',
+            'http://192.168.190.62:8000/student/$sdCardID',
             data: formData);
 
         print(response.data);

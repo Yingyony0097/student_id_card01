@@ -11,7 +11,6 @@ class StudentAdd extends StatefulWidget {
   const StudentAdd({Key? key}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _StudentAddState createState() => _StudentAddState();
 }
 
@@ -19,15 +18,13 @@ class _StudentAddState extends State<StudentAdd> {
   final _formKey = GlobalKey<FormState>();
 
   String? _selectedMajor;
+  String? _selectedNumber;
   String? _selectedYear;
-  String? _selectedPhed;
   String? _selectedGender;
   late String _token;
   Uint8List? _image;
 
   final TextEditingController _sdCardIDController = TextEditingController();
-  final TextEditingController __genderController = TextEditingController();
-  final TextEditingController _phedController = TextEditingController();
   final TextEditingController _fnameLaController = TextEditingController();
   final TextEditingController _lnameLaController = TextEditingController();
   final TextEditingController _fnameEnController = TextEditingController();
@@ -35,14 +32,9 @@ class _StudentAddState extends State<StudentAdd> {
   final TextEditingController _dateOfBirthController = TextEditingController();
   final TextEditingController _dateStartController = TextEditingController();
   final TextEditingController _dateEndController = TextEditingController();
-  final TextEditingController _imagesController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _createdByController = TextEditingController();
   final TextEditingController _updatedByController = TextEditingController();
-  final TextEditingController _fieldOfStudyController = TextEditingController();
-  final TextEditingController _yearController = TextEditingController();
-
-  get floatingActionButton => null;
 
   @override
   void initState() {
@@ -66,86 +58,79 @@ class _StudentAddState extends State<StudentAdd> {
     }
   }
 
-void _createStudent() async {
-  if (_formKey.currentState!.validate()) {
-    if (_image == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select an image')),
-      );
-      return;
-    }
-
-    Dio dio = Dio();
-    dio.options.headers['Authorization'] = 'Bearer $_token';
-
-    // Create form data
-    FormData formData = FormData.fromMap({
-      'sdCardID': _sdCardIDController.text,
-      'gender': _selectedGender,
-      'fname_la': _fnameLaController.text,
-      'lname_la': _lnameLaController.text,
-      'phed': _selectedPhed,
-      'fname_en': _fnameEnController.text,
-      'lname_en': _lnameEnController.text,
-      'date_of_birth': _dateOfBirthController.text,
-      'date_start': _dateStartController.text,
-      'date_end': _dateEndController.text,
-      'image': MultipartFile.fromBytes(_image!, filename: 'student_image.jpg'),
-      'password': _passwordController.text,
-      'created_by': _createdByController.text,
-      'updated_by': _updatedByController.text,
-      'field_of_study': _selectedMajor,
-      'year': _selectedYear,
-    });
-
-    try {
-      Response response = await dio.post(
-        'http://192.168.205.62:8000/student/',
-        data: formData,
-        options: Options(
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        ),
-      );
-
-      if (response.statusCode == 201) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const AdminPage()),
-        );
-      } else {
+  void _createStudent() async {
+    if (_formKey.currentState!.validate()) {
+      if (_image == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create student: ${response.data['error']}')),
+          const SnackBar(content: Text('Please select an image')),
         );
+        return;
       }
-    } catch (e) {
-      if (e is DioError) {
-        if (e.response != null) {
-          print("Error Response: ${e.response!.data}");
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: ${e.response!.statusMessage}')),
+
+      Dio dio = Dio();
+      dio.options.headers['Authorization'] = 'Bearer $_token';
+
+      FormData formData = FormData.fromMap({
+        'sdCardID': _sdCardIDController.text,
+        'gender': _selectedGender,
+        'fname_la': _fnameLaController.text,
+        'lname_la': _lnameLaController.text,
+        'fname_en': _fnameEnController.text,
+        'lname_en': _lnameEnController.text,
+        'date_of_birth': _dateOfBirthController.text,
+        'date_start': _dateStartController.text,
+        'date_end': _dateEndController.text,
+        'file': MultipartFile.fromBytes(_image!, filename: 'student_image.jpg'),
+        'password': _passwordController.text,
+        'created_by': _createdByController.text,
+        'updated_by': _updatedByController.text,
+        'name_field_of_study': _selectedMajor,
+        'year': _selectedYear,
+      });
+
+      try {
+        Response response = await dio.post(
+          'http://192.168.205.62:8000/student/create',
+          data: formData,
+          options: Options(
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          ),
+        );
+
+        if (response.statusCode == 201) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AdminPage()),
           );
         } else {
-          print("Error: ${e.message}");
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: ${e.message}')),
+            SnackBar(content: Text('Failed to create student: ${response.data['error']}')),
           );
         }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Unexpected error: $e')),
-        );
+      } catch (e) {
+        if (e is DioError) {
+          if (e.response != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error: ${e.response!.statusMessage}')),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error: ${e.message}')),
+            );
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Unexpected error: $e')),
+          );
+        }
       }
     }
   }
-}
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController _birthdateController = TextEditingController();
-    TextEditingController _lastLoginDateController = TextEditingController();
-    TextEditingController _usageDateController = TextEditingController();
     return Scaffold(
       backgroundColor: const Color.fromARGB(244, 238, 238, 238),
       body: SafeArea(
@@ -160,15 +145,14 @@ void _createStudent() async {
                 Center(
                   child: Image.asset(
                     'assets/images/logo.png',
-                    height: 120, // Set height as per your requirement
-                    // Adjust fit and alignment as needed
+                    height: 120,
                     fit: BoxFit.contain,
                   ),
                 ),
                 const SizedBox(height: 20),
                 const Center(
                   child: Text(
-                    'ສະຖາບັນ ເຕັກໂນໂລຊີ ການສື່ສານຂໍ້ມມູນຂ່າວສານ',
+                    'ສະຖາບັນ ເຕັກໂນໂລຊີ ການສື່ສານຂໍ້ມູນຂ່າວສານ',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
@@ -211,7 +195,7 @@ void _createStudent() async {
                 const SizedBox(height: 25),
                 _buildTextField(
                   labelText: 'ນາມສະກຸນພາສາລາວ:',
-                  hintText: 'ກາລຸນາປ້ອນນາມສະກຸນ',
+                  hintText: 'ກະລຸນາປ້ອນນາມສະກຸນ',
                   controller: _lnameLaController,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -224,252 +208,73 @@ void _createStudent() async {
                 _buildGenderDropdown(
                   labelText: 'ເພດ:',
                   hintText: 'ກະລຸນາເລືອກເພດ',
-                  value: _selectedGender,
-                  controller: _sdCardIDController,
-                  onChanged: (newValue) {
-                    setState(() {
-                      _selectedGender = newValue;
-                    });
-                  },
-                  validator: null,
-                ),
-                const SizedBox(height: 25),
-                _buildTextField(
-                  labelText: 'ຊື່ພາສາອັງກິດ:',
-                  hintText: 'ກະລຸນາປ້ອນຊື່',
-                  controller: _fnameEnController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'ກະລຸນາປ້ອນຊື່';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 25),
-                _buildTextField(
-                  labelText: 'ນາມສະກຸນພາສາອັງກິດ:',
-                  hintText: 'ກະລຸນາປ້ອນນາມສະກຸນ',
-                  controller: _lnameEnController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'ກະລຸນາປ້ອນນາມສະກຸນ';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 25),
-                _buildPhedDropdown(
-                  labelText: 'ເພດ:',
-                  hintText: 'ກະລຸນາເລືອກເພດ',
-                  value: _selectedPhed,
-                  controller: _sdCardIDController,
-                  onChanged: (newValue) {
-                    setState(() {
-                      _selectedPhed = newValue;
-                    });
-                  },
-                  validator: null,
                 ),
                 const SizedBox(height: 25),
                 _buildDateField(
-                  labelText: 'ວັນ,ເດືອນ,ປີເກີດ:',
-                  hintText: 'ກະລຸນາປ້ອນ ວັນ,ເດືອນ,ປີເກີດ',
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'ກະລຸນາປ້ອນ ວັນ,ເດືອນ,ປີເກີດ';
-                    }
-                    return null;
-                  },
-                  onTap: () async {
-                    DateTime? pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(1900),
-                      lastDate: DateTime(2100),
-                    );
-                    if (pickedDate != null) {
-                      String formattedDate =
-                          "${pickedDate.day.toString().padLeft(2, '0')}/${pickedDate.month.toString().padLeft(2, '0')}/${pickedDate.year.toString()}";
-                      _dateOfBirthController.text = formattedDate;
-                    }
-                  },
+                  labelText: 'ວັນເດືອນປີເກີດ:',
+                  hintText: 'ກະລຸນາໃສ່ວັນເດືອນປີເກີດ',
                   controller: _dateOfBirthController,
                 ),
-                const SizedBox(
-                  height: 25,
-                ),
-                _buildDropdown(
-                  labelText: 'ສາຂາທີຮຽນ:',
-                  hintText: 'ກະລຸນາເລືອກສາຂາທີຮຽນ',
-                  value: _selectedMajor,
-                  onChanged: (newValue) {
-                    setState(() {
-                      _selectedMajor = newValue;
-                    });
-                  },
-                  validator: null,
-                ),
-                const SizedBox(height: 25),
-                _buildYearDropdown(
-                  labelText: 'ປີຮຽນ:',
-                  hintText: 'ກະລຸນາເລືອກປີຮຽນ',
-                  value: _selectedYear,
-                  onChanged: (newValue) {
-                    setState(() {
-                      _selectedYear = newValue;
-                    });
-                  },
-                  validator: null,
-                ),
                 const SizedBox(height: 25),
                 _buildDateField(
-                  labelText: 'ວັນທີ່ອອກບັດ:',
-                  hintText: 'ກະລຸນາປ້ອນວັນທີ່ອອກບັດນັກສືກສາ',
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'ກະລຸນາປ້ອນວັນທີ່ອອກບັດນັກສືກສາ';
-                    }
-                    return null;
-                  },
-                  onTap: () async {
-                    DateTime? pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(1900),
-                      lastDate: DateTime(2100),
-                    );
-                    if (pickedDate != null) {
-                      String formattedDate =
-                          "${pickedDate.day.toString().padLeft(2, '0')}/${pickedDate.month.toString().padLeft(2, '0')}/${pickedDate.year.toString()}";
-                      _dateStartController.text = formattedDate;
-                    }
-                  },
+                  labelText: 'ວັນທີອອກບັດ:',
+                  hintText: 'ກະລຸນາໃສ່ວັນທີ່ອອກບັດ',
                   controller: _dateStartController,
                 ),
                 const SizedBox(height: 25),
                 _buildDateField(
                   labelText: 'ກຳນົດນຳໃຊ້ບັດ:',
-                  hintText: 'ກຳນົດການນຳໃຊ້ບັດ',
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'ກະລຸນາປ້ອນກຳນົດນຳໃຊ້ບັດ';
-                    }
-                    return null;
-                  },
-                  onTap: () async {
-                    DateTime? pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(1900),
-                      lastDate: DateTime(2100),
-                    );
-                    if (pickedDate != null) {
-                      String formattedDate =
-                          "${pickedDate.day.toString().padLeft(2, '0')}/${pickedDate.month.toString().padLeft(2, '0')}/${pickedDate.year.toString()}";
-                      _dateEndController.text = formattedDate;
-                    }
-                  },
+                  hintText: 'ກະລຸນາໃສ່ກຳນົດນຳໃຊ້ບັດ',
                   controller: _dateEndController,
                 ),
                 const SizedBox(height: 25),
                 _buildTextField(
                   labelText: 'ລະຫັດຜ່ານ:',
-                  hintText: 'ກະລຸນາສ້າງລະຫັດຜ່ານ',
+                  hintText: 'ກະລຸນາປ້ອນລະຫັດຜ່ານ',
                   controller: _passwordController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'ກະລຸນາປ້ອນລະຫັດຜ່ານ';
-                    }
-                    return null;
-                  },
+                  obscureText: true,
                 ),
                 const SizedBox(height: 25),
                 _buildTextField(
                   labelText: 'ຜູ້ສ້າງນັກສືກສາ:',
-                  hintText: 'ກະລຸນາໃສ່ຊື່ແອັດມິນ',
+                  hintText: 'ກະລຸນາປ້ອນຜູ້ສ້າງນັກສືກສາ',
                   controller: _createdByController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'ກະລຸນາປ້ອນຜູ້ສ້າງນັກສືກສາ';
-                    }
-                    return null;
-                  },
                 ),
                 const SizedBox(height: 25),
                 _buildTextField(
                   labelText: 'ຜູ້ແກ້ໄຂນັກສືກສາ:',
-                  hintText: 'ກະລຸນາໃສ່ຊື່ແອັດມິນ',
+                  hintText: 'ກະລຸນາປ້ອນຜູ້ແກ້ໄຂນັກສືກສາ',
                   controller: _updatedByController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'ກະລຸນາປ້ອນຜູ້ແກ້ໄຂນັກສືກສາ';
-                    }
-                    return null;
+                ),
+                const SizedBox(height: 25),
+                _buildDropdownField(
+                  labelText: 'ສາຂາ:',
+                  hintText: 'ກະລຸນາເລືອກສາຂາ',
+                  items: ['ວິສະວະກຳ ເຕັກໂນໂລຊີການສື່ສານຂໍ້ມູນຂ່າວສານ', 'ວິສະວະກຳ ເຕັກໂນໂລຊີຂໍ້ມູນຂ່າວສານ', 'ວິສະວະກຳ ເຕັກໂນໂລຊີການສື່ສານ', 'ບໍລິຫານ ເຕັກໂນໂລຊີການສື່ສານຂໍ້ມູນຂ່າວສານ', 'ຄວາມປອດໄພທາງໄຊເບີ'], // ปรับเป็นข้อมูลจริง
+                  onChanged: (String? value) {
+                    setState(() {
+                      _selectedMajor = value;
+                    });
                   },
                 ),
                 const SizedBox(height: 25),
-                Row(
-                  // ไม่ใช่ const Row
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(right: 20),
-                      child: Text(
-                        'ອັບໂຫຼດຮູບບັດປະຈຳຕົວ:',
-                        style: TextStyle(fontSize: 18),
-                      ),
-                    ),
-                    const SizedBox(width: 40),
-                    Stack(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Container(
-                            width: 120, // กำหนดความกว้างของรูปภาพ
-                            height: 120, // กำหนดความสูงของรูปภาพ
-                            color: Colors.grey.withOpacity(0.4),
-                            child: _image != null
-                                ? Image.memory(
-                                    _image!,
-                                    fit: BoxFit.cover,
-                                  )
-                                : Image.network(
-                                    'https://www.creativefabrica.com/wp-content/uploads/2021/05/26/Man-avatar-icon-vector-flat-Graphics-12541925-1-1-580x387.jpg',
-                                    fit: BoxFit.cover,
-                                  ),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: -18,
-                          left: 80,
-                          child: IconButton(
-                            onPressed: selectImage,
-                            icon: const Icon(Icons.add_a_photo),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                _buildDropdownField(
+                  labelText: 'ປີຮຽນ:',
+                  hintText: 'ກະລຸນາເລືອກປີຮຽນ',
+                  items: ['1', '2', '3', '4'], // ปรับเป็นข้อมูลจริง
+                  onChanged: (String? value) {
+                    setState(() {
+                      _selectedYear = value;
+                    });
+                  },
                 ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
+                const SizedBox(height: 25),
+                _buildUploadImageButton(),
+                const SizedBox(height: 25),
+                Center(
                   child: ElevatedButton(
                     onPressed: _createStudent,
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(
-                        Color.fromARGB(
-                            255, 17, 0, 255), // สีพื้นหลังเป็นสีน้ำเงินเข้ม
-                      ),
-                    ),
-                    child: const Text(
-                      'ເພິ່ມນັກສືກສາ', // ข้อความที่จะแสดงบนปุ่ม
-                      style: TextStyle(
-                        color: Colors.white, // สีตัวหนังสือของข้อความในปุ่ม
-                        fontWeight:
-                            FontWeight.bold, // ตั้งค่าตัวหนังสือเป็นตัวหนา
-                        fontSize: 16, // ขนาดตัวหนังสือ
-                      ),
-                    ),
+                    child: const Text('ເພີ່ມນັກສືກສາ'),
                   ),
                 ),
               ],
@@ -479,162 +284,130 @@ void _createStudent() async {
       ),
     );
   }
-}
 
-Widget _buildTextField({
-  required String labelText,
-  required String hintText,
-  required Function? validator,
-  required TextEditingController controller,
-}) {
-  return TextFormField(
-    decoration: InputDecoration(
-      labelText: labelText,
-      hintText: hintText,
-      border: const OutlineInputBorder(),
-    ),
-    validator: validator as String? Function(String?)?,
-  );
-}
+  Widget _buildTextField({
+    required String labelText,
+    required String hintText,
+    required TextEditingController controller,
+    bool obscureText = false,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        labelText: labelText,
+        hintText: hintText,
+        border: OutlineInputBorder(),
+      ),
+      validator: validator,
+    );
+  }
 
-Widget _buildDropdown({
-  required String labelText,
-  required String hintText,
-  required Function? validator,
-  required String? value,
-  required Function(String?) onChanged,
-}) {
-  return DropdownButtonFormField<String>(
-    decoration: InputDecoration(
-      labelText: labelText,
-      hintText: hintText,
-      border: const OutlineInputBorder(),
-    ),
-    value: value,
-    onChanged: onChanged,
-    validator: validator as String? Function(String?)?,
-    items: const [
-      DropdownMenuItem<String>(
-        value: 'it',
-        child: Text('ເຕັກໂນໂລຊີການສື່ສານຂໍ້ມູນຂ່າວສານ(IT)'),
+  Widget _buildDropdownField({
+    required String labelText,
+    required String hintText,
+    required List<String> items,
+    required void Function(String?) onChanged,
+  }) {
+    return DropdownButtonFormField<String>(
+      decoration: InputDecoration(
+        labelText: labelText,
+        hintText: hintText,
+        border: OutlineInputBorder(),
       ),
-      DropdownMenuItem<String>(
-        value: 'ict',
-        child: Text('ວິສະວະກຳເຕັກໂນຊີການສື່ສານ(ICT)'),
-      ),
-      DropdownMenuItem<String>(
-        value: 'cb',
-        child: Text('ຄວາມປອດໄພທາງໄຊເບີ (CB)'),
-      ),
-    ],
-  );
-}
+      items: items.map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+      onChanged: onChanged,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'ກະລຸນາເລືອກ $labelText';
+        }
+        return null;
+      },
+    );
+  }
 
-Widget _buildYearDropdown({
-  required String labelText,
-  required String hintText,
-  required Function? validator,
-  required String? value,
-  required Function(String?) onChanged,
-}) {
-  return DropdownButtonFormField<String>(
-    decoration: InputDecoration(
-      labelText: labelText,
-      hintText: hintText,
-      border: const OutlineInputBorder(),
-    ),
-    value: value,
-    onChanged: onChanged,
-    validator: validator as String? Function(String?)?,
-    items: [
-      '1',
-      '2',
-      '3',
-      '4',
-    ].map<DropdownMenuItem<String>>((String value) {
-      return DropdownMenuItem<String>(
-        value: value,
-        child: Text(value),
-      );
-    }).toList(),
-  );
-}
+  Widget _buildDateField({
+    required String labelText,
+    required String hintText,
+    required TextEditingController controller,
+  }) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: labelText,
+        hintText: hintText,
+        border: OutlineInputBorder(),
+      ),
+      readOnly: true,
+      onTap: () async {
+        DateTime? selectedDate = await showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime(1900),
+          lastDate: DateTime(2101),
+        );
 
-Widget _buildDateField({
-  required String labelText,
-  required String hintText,
-  required Function? validator,
-  required TextEditingController controller,
-  required Function onTap,
-}) {
-  return TextFormField(
-    decoration: InputDecoration(
-      labelText: labelText,
-      hintText: hintText,
-      border: const OutlineInputBorder(),
-    ),
-    validator: validator as String? Function(String?)?,
-    onTap: onTap as void Function()?,
-    controller: controller,
-  );
-}
+        if (selectedDate != null) {
+          controller.text = '${selectedDate.toLocal()}'.split(' ')[0];
+        }
+      },
+    );
+  }
 
-Widget _buildGenderDropdown({
-  required String labelText,
-  required String hintText,
-  required Function? validator,
-  required String? value,
-  required Function(String?) onChanged,
-  required TextEditingController controller,
-}) {
-  return DropdownButtonFormField<String>(
-    decoration: InputDecoration(
-      labelText: labelText,
-      hintText: hintText,
-      border: const OutlineInputBorder(),
-    ),
-    value: value,
-    onChanged: onChanged,
-    validator: validator as String? Function(String?)?,
-    items: const [
-      DropdownMenuItem<String>(
-        value: 'ທ້າວ',
-        child: Text('ທ້າວ'),
+  Widget _buildGenderDropdown({
+    required String labelText,
+    required String hintText,
+  }) {
+    return DropdownButtonFormField<String>(
+      decoration: InputDecoration(
+        labelText: labelText,
+        hintText: hintText,
+        border: OutlineInputBorder(),
       ),
-      DropdownMenuItem<String>(
-        value: 'ນາງ',
-        child: Text('ນາງ'),
-      ),
-    ],
-  );
-}
+      items: ['Male', 'Female', 'Other'].map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+      onChanged: (value) {
+        setState(() {
+          _selectedGender = value;
+        });
+      },
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'ກະລຸນາເລືອກເພດ';
+        }
+        return null;
+      },
+    );
+  }
 
-Widget _buildPhedDropdown({
-  required String labelText,
-  required String hintText,
-  required Function? validator,
-  required String? value,
-  required Function(String?) onChanged,
-  required TextEditingController controller,
-}) {
-  return DropdownButtonFormField<String>(
-    decoration: InputDecoration(
-      labelText: labelText,
-      hintText: hintText,
-      border: const OutlineInputBorder(),
-    ),
-    value: value,
-    onChanged: onChanged,
-    validator: validator as String? Function(String?)?,
-    items: const [
-      DropdownMenuItem<String>(
-        value: 'MR',
-        child: Text('MR'),
-      ),
-      DropdownMenuItem<String>(
-        value: 'Miss',
-        child: Text('Miss'),
-      ),
-    ],
-  );
+  Widget _buildUploadImageButton() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ElevatedButton(
+          onPressed: selectImage,
+          child: const Text('ເລືອກຮູບພາບ'),
+        ),
+        const SizedBox(width: 20),
+        _image != null
+            ? Image.memory(
+                _image!,
+                height: 100,
+                width: 100,
+                fit: BoxFit.cover,
+              )
+            : const Text('ບໍ່ມີຮູບພາບເລືອກ'),
+      ],
+    );
+  }
 }

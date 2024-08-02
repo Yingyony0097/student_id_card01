@@ -1,10 +1,39 @@
-import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+
+class Student {
+  final String sdCardID;
+  final String fnameLa;
+  final String lnameLa;
+  final String fnameEn;
+  final String lnameEn;
+  final String gender;
+  final String dateOfBirth;
+  final String dateStart;
+  final String dateEnd;
+  final String password;
+  final String name_field_of_study;
+  final String number;
+  final String updatedBy;
+
+  Student({
+    required this.sdCardID,
+    required this.fnameLa,
+    required this.lnameLa,
+    required this.fnameEn,
+    required this.lnameEn,
+    required this.gender,
+    required this.dateOfBirth,
+    required this.dateStart,
+    required this.dateEnd,
+    required this.password,
+    required this.name_field_of_study,
+    required this.number,
+    required this.updatedBy,
+  });
+}
 
 class StudentEdit extends StatefulWidget {
   final Student? student;
@@ -25,29 +54,51 @@ class _StudentEditState extends State<StudentEdit> {
   TextEditingController lnameLaController = TextEditingController();
   TextEditingController fnameEnController = TextEditingController();
   TextEditingController lnameEnController = TextEditingController();
+  // TextEditingController genderController = TextEditingController();
   TextEditingController birthdateController = TextEditingController();
   TextEditingController datestartController = TextEditingController();
   TextEditingController dateendController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  TextEditingController fieldOfStudyController = TextEditingController();
+  // ignore: non_constant_identifier_names
+  TextEditingController name_field_of_studyController = TextEditingController();
   TextEditingController updatedbyController = TextEditingController();
-  TextEditingController yearController = TextEditingController();
+  TextEditingController numberController = TextEditingController();
 
- void _pickImage() async {
-  final picker = ImagePicker();
-  final pickedImage = await picker.pickImage(source: ImageSource.gallery);
+   String? _selectedGender;
 
-  if (pickedImage != null) {
-    // ทำอะไรกับรูปที่เลือกได้ต่อไป
-    setState(() {
-      _image = pickedImage as PickedFile?; // กำหนดค่าให้กับตัวแปร _image
-    });
-  } else {
-    print('No image selected.');
+  @override
+  void initState() {
+    super.initState();
+    if (widget.student != null) {
+      // Initialize controllers with data from the student object
+      sdCardIDController.text = widget.student!.sdCardID;
+      fnameLaController.text = widget.student!.fnameLa;
+      lnameLaController.text = widget.student!.lnameLa;
+      fnameEnController.text = widget.student!.fnameEn;
+      lnameEnController.text = widget.student!.lnameEn;
+      // genderController.text = widget.student!.gender;
+      birthdateController.text = widget.student!.dateOfBirth;
+      datestartController.text = widget.student!.dateStart;
+      dateendController.text = widget.student!.dateEnd;
+      passwordController.text = widget.student!.password;
+      name_field_of_studyController.text = widget.student!.name_field_of_study;
+      numberController.text = widget.student!.number;
+      updatedbyController.text = widget.student!.updatedBy;
+    }
   }
-}
 
+  void _pickImage() async {
+    final picker = ImagePicker();
+    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
 
+    if (pickedImage != null) {
+      setState(() {
+        _image = pickedImage as PickedFile?;
+      });
+    } else {
+      print('No image selected.');
+    }
+  }
 
   void sendDataToServer() async {
     Dio dio = Dio();
@@ -58,9 +109,10 @@ class _StudentEditState extends State<StudentEdit> {
         String lname_la = lnameLaController.text;
         String fname_en = fnameEnController.text;
         String lname_en = lnameEnController.text;
+        String gender = _selectedGender ?? '';
         String date_of_birth = birthdateController.text;
-        String field_of_study = fieldOfStudyController.text;
-        String year = yearController.text;
+        String name_field_of_study = name_field_of_studyController.text;
+        String number = numberController.text;
         String date_start = datestartController.text;
         String date_end = dateendController.text;
         String password = passwordController.text;
@@ -72,9 +124,10 @@ class _StudentEditState extends State<StudentEdit> {
           'lname_la': lname_la,
           'fname_en': fname_en,
           'lname_en': lname_en,
+          'gender': gender,
           'date_of_birth': date_of_birth,
-          'field_of_study': field_of_study,
-          'year': year,
+          'name_field_of_study': name_field_of_study,
+          'number': number,
           'date_start': date_start,
           'date_end': date_end,
           'password': password,
@@ -144,7 +197,7 @@ class _StudentEditState extends State<StudentEdit> {
                 const SizedBox(height: 25),
                 _buildTextField(
                   labelText: 'ນາມສະກຸນພາສາລາວ:',
-                  hintText: 'ກາລຸນາປ້ອນນາມສະກຸນ',
+                  hintText: 'ກະລຸນາປ້ອນນາມສະກຸນ',
                   controller: lnameLaController,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -177,6 +230,18 @@ class _StudentEditState extends State<StudentEdit> {
                     return null;
                   },
                 ),
+                 const SizedBox(height: 25),
+                _buildDropdownField(
+                  labelText: 'ເພດ:',
+                  hintText: 'ກະລຸນາເລືອກເພດ',
+                  value: _selectedGender,
+                  items: ['Male', 'Female'],
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedGender = value;
+                    });
+                  },
+                ),
                 const SizedBox(height: 25),
                 _buildDateField(
                   labelText: 'ວັນ,ເດືອນ,ປີເກີດ:',
@@ -187,104 +252,33 @@ class _StudentEditState extends State<StudentEdit> {
                     }
                     return null;
                   },
-                  onTap: () async {
-                    DateTime? pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(1900),
-                      lastDate: DateTime(2100),
-                    );
-                    if (pickedDate != null) {
-                      String formattedDate =
-                          "${pickedDate.day.toString().padLeft(2, '0')}/${pickedDate.month.toString().padLeft(2, '0')}/${pickedDate.year.toString()}";
-                      birthdateController.text = formattedDate;
-                    }
-                  },
-                  controller: birthdateController,
-                ),
-                const SizedBox(
-                  height: 25,
-                ),
-                _buildDropdown(
-                  labelText: 'ສາຂາທີຮຽນ:',
-                  hintText: 'ກະລຸນາເລືອກສາຂາທີຮຽນ',
-                  controller: fieldOfStudyController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'ກະລຸນາເລືອກສາຂາທີຮຽນ';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(
-                  height: 25,
-                ),
-                _buildYearDropdown(
-                  labelText: 'ປີຮຽນ:',
-                  hintText: 'ກະລຸນາເລືອກປີທີຮຽນ',
-                  controller: yearController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'ກະລຸນາເລືອກປີທີຮຽນ';
-                    }
-                    return null;
-                  },
                 ),
                 const SizedBox(height: 25),
                 _buildDateField(
-                  labelText: 'ວັນທີ່ອອກບັດ:',
-                  hintText: 'ກະລຸນາປ້ອນວັນທີ່ອອກບັດນັກສືກສາ',
+                  labelText: 'ວັນທີອອກບັດ:',
+                  hintText: 'ກະລຸນາປ້ອນ ວັນທີອອກບັດ',
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'ກະລຸນາປ້ອນວັນທີ່ອອກບັດນັກສືກສາ';
+                      return 'ກະລຸນາປ້ອນ ວັນທີອອກບັດ';
                     }
                     return null;
                   },
-                  onTap: () async {
-                    DateTime? pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(1900),
-                      lastDate: DateTime(2100),
-                    );
-                    if (pickedDate != null) {
-                      String formattedDate =
-                          "${pickedDate.day.toString().padLeft(2, '0')}/${pickedDate.month.toString().padLeft(2, '0')}/${pickedDate.year.toString()}";
-                      datestartController.text = formattedDate;
-                    }
-                  },
-                  controller: datestartController,
                 ),
                 const SizedBox(height: 25),
                 _buildDateField(
                   labelText: 'ກຳນົດນຳໃຊ້ບັດ:',
-                  hintText: 'ກຳນົດການນຳໃຊ້ບັດ',
+                  hintText: 'ກະລຸນາປ້ອນ ກຳນົດນຳໃຊ້ບັດ',
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'ກະລຸນາປ້ອນກຳນົດນຳໃຊ້ບັດ';
+                      return 'ກະລຸນາປ້ອນ ກຳນົດນຳໃຊ້ບັດ';
                     }
                     return null;
                   },
-                  onTap: () async {
-                    DateTime? pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(1900),
-                      lastDate: DateTime(2100),
-                    );
-                    if (pickedDate != null) {
-                      String formattedDate =
-                          "${pickedDate.day.toString().padLeft(2, '0')}/${pickedDate.month.toString().padLeft(2, '0')}/${pickedDate.year.toString()}";
-                      dateendController.text = formattedDate;
-                    }
-                  },
-                  controller: dateendController,
                 ),
                 const SizedBox(height: 25),
                 _buildTextField(
                   labelText: 'ລະຫັດຜ່ານ:',
                   hintText: 'ກະລຸນາປ້ອນລະຫັດຜ່ານ',
-                  obscureText: true,
                   controller: passwordController,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -295,41 +289,56 @@ class _StudentEditState extends State<StudentEdit> {
                 ),
                 const SizedBox(height: 25),
                 _buildTextField(
-                  labelText: 'ຜູ້ອັບເດດ:',
-                  hintText: 'ກະລຸນາປ້ອນຜູ້ອັບເດດ',
-                  controller: updatedbyController,
+                  labelText: 'ສາຂາຮຽນ:',
+                  hintText: 'ກະລຸນາປ້ອນສາຂາຮຽນ',
+                  controller: name_field_of_studyController,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'ກະລຸນາປ້ອນຜູ້ອັບເດດ';
+                      return 'ກະລຸນາປ້ອນສາຂາຮຽນ';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 25),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: _pickImage,
-                        child: const Text('ເລືອກຮູບພາບ'),
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: sendDataToServer,
-                        child: const Text('ບັນທຶກ'),
-                      ),
-                    ),
-                  ],
+                _buildTextField(
+                  labelText: 'ປີຮຽນ:',
+                  hintText: 'ກະລຸນາປ້ອນປີຮຽນ',
+                  controller: numberController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'ກະລຸນາປ້ອນປີຮຽນ';
+                    }
+                    return null;
+                  },
                 ),
-                if (_image != null) ...[
-                  const SizedBox(height: 20),
-                  Image.file(
-                    File(_image!.path),
-                    height: 150,
-                  ),
-                ],
+                const SizedBox(height: 25),
+                _buildTextField(
+                  labelText: 'ຜູ້ແກ້ໄຂ:',
+                  hintText: 'ກະລຸນາປ້ອນຜູ້ແກ້ໄຂ',
+                  controller: updatedbyController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'ກະລຸນາປ້ອນຜູ້ແກ້ໄຂ';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 25),
+                InkWell(
+                  onTap: _pickImage,
+                  child: _image == null
+                      ? Image.asset('assets/placeholder.png', height: 150)
+                      : Image.file(File(_image!.path), height: 150),
+                ),
+                const SizedBox(height: 25),
+                ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      sendDataToServer();
+                    }
+                  },
+                  child: const Text('ບັນທືກ'),
+                ),
               ],
             ),
           ),
@@ -342,17 +351,14 @@ class _StudentEditState extends State<StudentEdit> {
     required String labelText,
     required String hintText,
     required TextEditingController controller,
-    bool obscureText = false,
-    String? Function(String?)? validator,
+    required FormFieldValidator<String> validator,
   }) {
     return TextFormField(
+      controller: controller,
       decoration: InputDecoration(
         labelText: labelText,
         hintText: hintText,
-        border: OutlineInputBorder(),
       ),
-      controller: controller,
-      obscureText: obscureText,
       validator: validator,
     );
   }
@@ -360,104 +366,47 @@ class _StudentEditState extends State<StudentEdit> {
   Widget _buildDateField({
     required String labelText,
     required String hintText,
-    required TextEditingController controller,
-    void Function()? onTap,
-    String? Function(String?)? validator,
+    required FormFieldValidator<String> validator,
   }) {
     return TextFormField(
+      controller: birthdateController,
       decoration: InputDecoration(
         labelText: labelText,
         hintText: hintText,
-        border: OutlineInputBorder(),
       ),
-      controller: controller,
-      readOnly: true,
-      onTap: onTap,
       validator: validator,
-    );
-  }
-
-  Widget _buildDropdown({
-    required String labelText,
-    required String hintText,
-    required TextEditingController controller,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      decoration: InputDecoration(
-        labelText: labelText,
-        hintText: hintText,
-        border: OutlineInputBorder(),
-      ),
-      controller: controller,
-      validator: validator,
-    );
-  }
-
-  Widget _buildYearDropdown({
-    required String labelText,
-    required String hintText,
-    required TextEditingController controller,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      decoration: InputDecoration(
-        labelText: labelText,
-        hintText: hintText,
-        border: OutlineInputBorder(),
-      ),
-      controller: controller,
-      validator: validator,
-      keyboardType: TextInputType.number,
     );
   }
 }
 
-class Student {
-  final String sdCardID;
-  final String fnameLa;
-  final String lnameLa;
-  final String fnameEn;
-  final String lnameEn;
-  final String dateOfBirth;
-  final String fieldOfStudy;
-  final String year;
-  final String dateStart;
-  final String dateEnd;
-  final String password;
-  final String updatedBy;
 
-  Student({
-    required this.sdCardID,
-    required this.fnameLa,
-    required this.lnameLa,
-    required this.fnameEn,
-    required this.lnameEn,
-    required this.dateOfBirth,
-    required this.fieldOfStudy,
-    required this.year,
-    required this.dateStart,
-    required this.dateEnd,
-    required this.password,
-    required this.updatedBy,
-  });
-
-  factory Student.fromJson(Map<String, dynamic> json) {
-    return Student(
-      sdCardID: json['sdCardID'],
-      fnameLa: json['fname_la'],
-      lnameLa: json['lname_la'],
-      fnameEn: json['fname_en'],
-      lnameEn: json['lname_en'],
-      dateOfBirth: json['date_of_birth'],
-      fieldOfStudy: json['field_of_study'],
-      year: json['year'],
-      dateStart: json['date_start'],
-      dateEnd: json['date_end'],
-      password: json['password'],
-      updatedBy: json['updated_by'],
+Widget _buildDropdownField({
+    required String labelText,
+    required String hintText,
+    required String? value,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return DropdownButtonFormField<String>(
+      value: value,
+      decoration: InputDecoration(
+        labelText: labelText,
+        hintText: hintText,
+        border: OutlineInputBorder(),
+      ),
+      items: items.map((item) {
+        return DropdownMenuItem<String>(
+          value: item,
+          child: Text(item),
+        );
+      }).toList(),
+      onChanged: onChanged,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'ກະລຸນາເລືອກເພດ';
+        }
+        return null;
+      },
     );
   }
 
-  
-}

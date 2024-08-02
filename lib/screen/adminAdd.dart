@@ -158,7 +158,7 @@ class _AdminAddState extends State<AdminAdd> {
                   child: ElevatedButton(
                     onPressed: _createAdmin,
                     style: ElevatedButton.styleFrom(
-                      primary: const Color.fromARGB(255, 0, 51, 255),
+                      backgroundColor: const Color.fromARGB(255, 0, 51, 255),
                     ),
                     child: const Text(
                       'ເພິ່ມຜູ້ດູແລລະບົບ',

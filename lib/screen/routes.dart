@@ -23,7 +23,7 @@ class AppRoute {
     // โปรดแน่ใจว่าเส้นทาง 'login' ได้ถูกกำหนดใน MaterialApp ให้เรียกใช้ LoginPage
     login: (context) => const LoginPage(),
     admin: (context) => const AdminPage(),
-    edit: (context) => const StudentEdit(),
+    edit: (context) =>  StudentEdit(),
     studentadd: (context) => const SearchStudent(),
     search: (context) => const SearchStudent (),
     // ShowCard: (context) => ShowCard(), // แก้เป็น ShowStudentCard() โดยไม่ใช้ const

@@ -122,7 +122,7 @@ class _StudentPageState extends State<StudentPage> {
           child: ElevatedButton(
             onPressed: onPressed,
             style: ElevatedButton.styleFrom(
-              primary: const Color.fromARGB(192, 39, 2, 226),
+              backgroundColor: const Color.fromARGB(192, 39, 2, 226),
             ),
             child: Text(
               text,

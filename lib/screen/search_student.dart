@@ -38,7 +38,7 @@ class _SearchStudentState extends State<SearchStudent> {
       };
 
       var response = await _dio.get(
-        'http://192.168.190.62:8000/student/$sdCardID',
+        'http://192.168.205.62:8000/student/$sdCardID',
         options: Options(headers: headers),
       );
 
@@ -131,7 +131,7 @@ class _SearchStudentState extends State<SearchStudent> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      primary: Color.fromARGB(192, 39, 2, 226), // Set the button color to blue
+                      backgroundColor: Color.fromARGB(192, 39, 2, 226), // Set the button color to blue
                     ),
                     child: const Text('ຄົ້ນຫາ',
                     style: TextStyle(color: Color.fromARGB(219, 255, 255, 255)),)

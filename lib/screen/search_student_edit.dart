@@ -33,7 +33,7 @@ Widget _buildButton(String text, VoidCallback onPressed,
         child: ElevatedButton(
           onPressed: onPressed,
           style: ElevatedButton.styleFrom(
-            primary: const Color.fromARGB(192, 39, 2, 226),
+            backgroundColor: const Color.fromARGB(192, 39, 2, 226),
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -63,7 +63,7 @@ Widget _addbuildButton(
         child: ElevatedButton(
           onPressed: onPressed,
           style: ElevatedButton.styleFrom(
-            primary: const Color.fromARGB(192, 39, 2, 226),
+            backgroundColor: const Color.fromARGB(192, 39, 2, 226),
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -146,176 +146,7 @@ class _SearchEditState extends State<SearchEdit> {
             const SizedBox(
               height: 20,
             ),
-            _buildButton(
-              'ເຕັກໂນໂລຊີຂໍ້ມູນຂ່າວສານ(IT) ປີທີ1',
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const IT01()),
-                );
-              },
-              width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.symmetric(
-                  vertical:
-                      15.0), // ปรับ padding ในแนวดิ่งเพื่อปรับตำแหน่งข้อความ
-            ),
-            
-            _buildButton(
-              'ເຕັກໂນໂລຊີຂໍ້ມູນຂ່າວສານ(IT) ປີທີ2',
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const IT02()),
-                );
-              },
-              width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.symmetric(
-                  vertical:
-                      15.0), // ปรับ padding ในแนวดิ่งเพื่อปรับตำแหน่งข้อความ
-            ),
-              _buildButton(
-              'ເຕັກໂນໂລຊີຂໍ້ມູນຂ່າວສານ(IT) ປີທີ3',
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const IT03()),
-                );
-              },
-              width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.symmetric(
-                  vertical:
-                      15.0), // ปรับ padding ในแนวดิ่งเพื่อปรับตำแหน่งข้อความ
-            ),
-              _buildButton(
-              'ເຕັກໂນໂລຊີຂໍ້ມູນຂ່າວສານ(IT) ປີທີ4',
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const IT04()),
-                );
-              },
-              width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.symmetric(
-                  vertical:
-                      15.0), // ปรับ padding ในแนวดิ่งเพื่อปรับตำแหน่งข้อความ
-            ),
-              _buildButton(
-              'ເຕັກໂນໂລຊີການສື່ສານ(ICT) ປີທີ1',
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ICT01()),
-                );
-              },
-              width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.symmetric(
-                  vertical:
-                      15.0), // ปรับ padding ในแนวดิ่งเพื่อปรับตำแหน่งข้อความ
-            ),
-              _buildButton(
-              'ເຕັກໂນໂລຊີການສື່ສານ(ICT) ປີທີ2',
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ICT02()),
-                );
-              },
-              width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.symmetric(
-                  vertical:
-                      15.0), // ปรับ padding ในแนวดิ่งเพื่อปรับตำแหน่งข้อความ
-            ),
-              _buildButton(
-              'ເຕັກໂນໂລຊີການສື່ສານ(ICT) ປີທີ3',
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ICT03()),
-                );
-              },
-              width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.symmetric(
-                  vertical:
-                      15.0), // ปรับ padding ในแนวดิ่งเพื่อปรับตำแหน่งข้อความ
-            ),
-              _buildButton(
-              'ເຕັກໂນໂລຊີການສື່ສານ(ICT) ປີທີ4',
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ICT04()),
-                );
-              },
-              width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.symmetric(
-                  vertical:
-                      15.0), // ปรับ padding ในแนวดิ่งเพื่อปรับตำแหน่งข้อความ
-            ),
-              _buildButton(
-              'ຄວາມປອດໄພທາງໄຊເບີ(CB) ປີທີ1',
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const CB01()),
-                );
-              },
-              width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.symmetric(
-                  vertical:
-                      15.0), // ปรับ padding ในแนวดิ่งเพื่อปรับตำแหน่งข้อความ
-            ),
-              _buildButton(
-              'ຄວາມປອດໄພທາງໄຊເບີ(CB) ປີທີ2',
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const CB02()),
-                );
-              },
-              width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.symmetric(
-                  vertical:
-                      15.0), // ปรับ padding ในแนวดิ่งเพื่อปรับตำแหน่งข้อความ
-            ),
-              _buildButton(
-              'ຄວາມປອດໄພທາງໄຊເບີ(CB) ປີທີ3',
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const CB03()),
-                );
-              },
-              width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.symmetric(
-                  vertical:
-                      15.0), // ปรับ padding ในแนวดิ่งเพื่อปรับตำแหน่งข้อความ
-            ),
-              _buildButton(
-              'ຄວາມປອດໄພທາງໄຊເບີ(CB) ປີທີ4',
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const CB04()),
-                );
-              },
-              width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.symmetric(
-                  vertical:
-                      15.0), // ปรับ padding ในแนวดิ่งเพื่อปรับตำแหน่งข้อความ
-            ),
-            _buildButton(
-              'ເພີ່ມຫ້ອງຮຽນ',
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const IT02()),
-                );
-              },
-              width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.symmetric(
-                  vertical:
-                      15.0), // ปรับ padding ในแนวดิ่งเพื่อปรับตำแหน่งข้อความ
-            ),
+           
              
           ],
         ),
